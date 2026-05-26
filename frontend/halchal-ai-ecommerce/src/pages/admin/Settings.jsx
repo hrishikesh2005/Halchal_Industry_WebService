@@ -1,10 +1,11 @@
 import { useState } from "react";
 
 const T = {
-  bg0: "#04080F", bg1: "#07101E", bg2: "#0B1628", bg3: "#101F35",
-  accent: "#00E5A0", copper: "#FFB020", danger: "#FF6B6B", info: "#00B4D8",
+  bg0: "#05070E", bg1: "#0B1120", bg2: "#111B30", bg3: "#18253E",
+  accent: "#00D68F", copper: "#F5A623", danger: "#FF5577", info: "#38C0FF",
   border: "rgba(255,255,255,0.07)", borderMd: "rgba(255,255,255,0.13)",
-  text1: "#EEF3FF", text2: "#7A9EC6", text3: "#3D5A7A",
+  text1: "#EBF0FF", text2: "#7A98B8", text3: "#3F5470",
+  font: "'Inter', system-ui, sans-serif",
 };
 
 const USERS = [
@@ -57,7 +58,7 @@ const inputStyle = {
   width: "100%", boxSizing: "border-box",
   background: T.bg3, border: `1px solid ${T.border}`,
   borderRadius: 8, padding: "9px 12px", color: T.text1,
-  fontSize: 13, fontFamily: "'Lora', serif", outline: "none",
+  fontSize: 13, fontFamily: T.font, outline: "none",
 };
 
 export default function Settings() {
@@ -113,7 +114,7 @@ export default function Settings() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            style={{ padding: "9px 18px", border: "none", background: "transparent", color: activeTab === tab ? T.text1 : T.text3, fontSize: 13, fontWeight: activeTab === tab ? 700 : 400, cursor: "pointer", fontFamily: "'Lora', serif", borderBottom: `2px solid ${activeTab === tab ? T.copper : "transparent"}`, marginBottom: -1, transition: "all 0.15s" }}
+            style={{ padding: "9px 18px", border: "none", background: "transparent", color: activeTab === tab ? T.text1 : T.text3, fontSize: 13, fontWeight: activeTab === tab ? 700 : 400, cursor: "pointer", fontFamily: T.font, borderBottom: `2px solid ${activeTab === tab ? T.copper : "transparent"}`, marginBottom: -1, transition: "all 0.15s" }}
           >
             {tab}
           </button>
@@ -151,7 +152,7 @@ export default function Settings() {
             </div>
           </div>
           <div style={{ padding: "16px 24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "flex-end" }}>
-            <button onClick={saveCompany} disabled={saving} style={{ padding: "9px 24px", borderRadius: 8, border: "none", background: saving ? T.bg3 : T.copper, color: saving ? T.text3 : "#04080F", fontSize: 13, fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", fontFamily: "'Lora', serif" }}>
+            <button onClick={saveCompany} disabled={saving} style={{ padding: "9px 24px", borderRadius: 8, border: "none", background: saving ? T.bg3 : T.copper, color: saving ? T.text3 : "#04080F", fontSize: 13, fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", fontFamily: T.font }}>
               {saving ? "Saving…" : "Save Changes"}
             </button>
           </div>
@@ -181,7 +182,7 @@ export default function Settings() {
             ))}
           </div>
           <div style={{ padding: "16px 24px", display: "flex", justifyContent: "flex-end" }}>
-            <button onClick={() => showToast("Notification preferences saved")} style={{ padding: "9px 24px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Lora', serif" }}>
+            <button onClick={() => showToast("Notification preferences saved")} style={{ padding: "9px 24px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: T.font }}>
               Save Preferences
             </button>
           </div>
@@ -221,7 +222,7 @@ export default function Settings() {
                     <td style={{ padding: "14px 24px", fontSize: 11, color: T.text3 }}>{u.last}</td>
                     <td style={{ padding: "14px 24px" }}>
                       {u.role !== "Super Admin" && (
-                        <button style={{ padding: "5px 12px", borderRadius: 6, border: `1px solid ${T.border}`, background: "transparent", color: T.text2, fontSize: 11, cursor: "pointer", fontFamily: "'Lora', serif" }}>
+                        <button style={{ padding: "5px 12px", borderRadius: 6, border: `1px solid ${T.border}`, background: "transparent", color: T.text2, fontSize: 11, cursor: "pointer", fontFamily: T.font }}>
                           Edit
                         </button>
                       )}
@@ -232,7 +233,7 @@ export default function Settings() {
             </table>
           </div>
           <div style={{ padding: "16px 24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "flex-end" }}>
-            <button onClick={() => showToast("Invite sent! (demo)")} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Lora', serif" }}>
+            <button onClick={() => showToast("Invite sent! (demo)")} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: T.font }}>
               + Invite Member
             </button>
           </div>
@@ -253,10 +254,10 @@ export default function Settings() {
               ))}
             </div>
             <div style={{ padding: "14px 24px", borderTop: `1px solid ${T.border}`, display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button onClick={() => showToast("Retraining scheduled for next maintenance window (demo)")} style={{ padding: "9px 20px", borderRadius: 8, border: `1px solid ${T.border}`, background: "transparent", color: T.text2, fontSize: 12, cursor: "pointer", fontFamily: "'Lora', serif" }}>
+              <button onClick={() => showToast("Retraining scheduled for next maintenance window (demo)")} style={{ padding: "9px 20px", borderRadius: 8, border: `1px solid ${T.border}`, background: "transparent", color: T.text2, fontSize: 12, cursor: "pointer", fontFamily: T.font }}>
                 Schedule Retrain
               </button>
-              <button onClick={() => showToast("Model diagnostics exported (demo)")} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Lora', serif" }}>
+              <button onClick={() => showToast("Model diagnostics exported (demo)")} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: T.font }}>
                 Export Diagnostics
               </button>
             </div>
@@ -292,7 +293,7 @@ export default function Settings() {
                   />
                 </div>
               ))}
-              <button onClick={savePassword} style={{ padding: "10px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Lora', serif", marginTop: 4 }}>
+              <button onClick={savePassword} style={{ padding: "10px", borderRadius: 8, border: "none", background: T.copper, color: "#04080F", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: T.font, marginTop: 4 }}>
                 Update Password
               </button>
             </div>
@@ -311,7 +312,7 @@ export default function Settings() {
                     <div style={{ fontSize: 13, color: T.text1, fontWeight: 500 }}>{label}</div>
                     <div style={{ fontSize: 11, color: T.text3, marginTop: 3 }}>{desc}</div>
                   </div>
-                  <button onClick={() => showToast(`${label} — action logged (demo)`, false)} style={{ padding: "7px 16px", borderRadius: 8, border: "1px solid rgba(255,107,107,0.3)", background: "transparent", color: T.danger, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Lora', serif", whiteSpace: "nowrap", marginLeft: 16 }}>
+                  <button onClick={() => showToast(`${label} — action logged (demo)`, false)} style={{ padding: "7px 16px", borderRadius: 8, border: "1px solid rgba(255,107,107,0.3)", background: "transparent", color: T.danger, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: T.font, whiteSpace: "nowrap", marginLeft: 16 }}>
                     {label.startsWith("Export") ? "Export" : "Execute"}
                   </button>
                 </div>

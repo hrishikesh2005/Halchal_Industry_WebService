@@ -1,39 +1,29 @@
 import { useEffect, useState } from "react";
 
 const T = {
-  bg0: "#04080F", bg1: "#07101E", bg2: "#0B1628", bg3: "#101F35",
-  accent: "#00E5A0", copper: "#FFB020", danger: "#FF6B6B", info: "#00B4D8",
-  border: "rgba(255,255,255,0.07)", borderMd: "rgba(255,255,255,0.13)",
-  text1: "#EEF3FF", text2: "#7A9EC6", text3: "#3D5A7A",
+  bg0: "#05070E", bg1: "#0B1120", bg2: "#111B30", bg3: "#18253E",
+  amber: "#F5A623", amberSoft: "rgba(245,166,35,0.09)", amberBorder: "rgba(245,166,35,0.22)",
+  green: "#00D68F", greenSoft: "rgba(0,214,143,0.09)", greenBorder: "rgba(0,214,143,0.22)",
+  sky: "#38C0FF",
+  rose: "#FF5577",  roseSoft: "rgba(255,85,119,0.09)", roseBorder: "rgba(255,85,119,0.25)",
+  border: "rgba(255,255,255,0.07)",
+  t1: "#EBF0FF", t2: "#7A98B8", t3: "#3F5470",
+  font: "'Inter', system-ui, sans-serif",
 };
 
-const BUNDLE_SIZE = 300; // metres per coil/bundle
-const PIPE_TYPES  = ["16mm Inline", "16mm Online", "20mm Inline", "20mm Online"];
+const BUNDLE = 300;
+const PIPES  = ["16mm Inline", "16mm Online", "20mm Inline", "20mm Online"];
+const PIPE_COLORS = ["#00D68F", "#F5A623", "#38C0FF", "#818CF8"];
 
-// All quantities in BUNDLES (coils of 300m each)
-const CAPACITY = {
-  "16mm Inline": 20,
-  "16mm Online": 20,
-  "20mm Inline": 16,
-  "20mm Online": 16,
+const CAP = { "16mm Inline": 20, "16mm Online": 20, "20mm Inline": 16, "20mm Online": 16 };
+const MOCK = { "16mm Inline": 14, "16mm Online": 9,  "20mm Inline": 6,  "20mm Online": 3  };
+const META = {
+  "16mm Inline": { crop: "Banana · Grapes · Onion",       season: "Rabi / Kharif", reorder: 5 },
+  "16mm Online": { crop: "Tomato · Chilli · Pomegranate", season: "All seasons",   reorder: 5 },
+  "20mm Inline": { crop: "Sugarcane · Cotton",            season: "Kharif",        reorder: 4 },
+  "20mm Online": { crop: "Cotton · Maize",                season: "Kharif",        reorder: 3 },
 };
-
-const MOCK_STOCK = {
-  "16mm Inline": 14,
-  "16mm Online": 9,
-  "20mm Inline": 6,
-  "20mm Online": 3,
-};
-
-const PIPE_META = {
-  "16mm Inline": { crop: "Banana, Grapes, Onion", season: "Rabi / Kharif", reorder: 5 },
-  "16mm Online": { crop: "Tomato, Chilli, Pomegranate", season: "All seasons", reorder: 5 },
-  "20mm Inline": { crop: "Sugarcane, Cotton", season: "Kharif", reorder: 4 },
-  "20mm Online": { crop: "Cotton, Maize", season: "Kharif", reorder: 3 },
-};
-
-// History in bundles
-const STOCK_HISTORY = [
+const HISTORY = [
   { date: "May 1", "16mm Inline": 13, "16mm Online": 10, "20mm Inline": 7, "20mm Online": 4 },
   { date: "May 2", "16mm Inline": 13, "16mm Online": 10, "20mm Inline": 7, "20mm Online": 4 },
   { date: "May 3", "16mm Inline": 14, "16mm Online": 9,  "20mm Inline": 7, "20mm Online": 3 },
@@ -41,17 +31,11 @@ const STOCK_HISTORY = [
   { date: "May 7", "16mm Inline": 14, "16mm Online": 9,  "20mm Inline": 6, "20mm Online": 3 },
 ];
 
-const levelColor = (pct) => pct > 60 ? T.accent : pct > 30 ? T.copper : T.danger;
-const levelLabel = (pct) => pct > 60 ? "Healthy"  : pct > 30 ? "Moderate" : "Critical";
-
-const Card = ({ children, style }) => (
-  <div style={{ background: T.bg1, border: `1px solid ${T.border}`, borderRadius: 14, ...style }}>
-    {children}
-  </div>
-);
+const levelColor = (pct) => pct > 60 ? T.green  : pct > 30 ? T.amber : T.rose;
+const levelLabel = (pct) => pct > 60 ? "Healthy" : pct > 30 ? "Moderate" : "Critical";
 
 export default function StockManagement() {
-  const [stock,   setStock]   = useState(MOCK_STOCK);
+  const [stock,   setStock]   = useState(MOCK);
   const [draft,   setDraft]   = useState({});
   const [saving,  setSaving]  = useState({});
   const [toast,   setToast]   = useState(null);
@@ -61,119 +45,137 @@ export default function StockManagement() {
     setLoading(true);
     fetch("http://localhost:5000/api/stock")
       .then(r => r.json())
-      .then(data => {
-        const formatted = {};
-        data.forEach(item => { formatted[item.pipe_type] = Math.floor(item.quantity / BUNDLE_SIZE); });
-        setStock(prev => ({ ...prev, ...formatted }));
+      .then(d => {
+        const f = {};
+        d.forEach(item => { f[item.pipe_type] = Math.floor(item.quantity / BUNDLE); });
+        setStock(s => ({ ...s, ...f }));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const showToast = (msg, ok = true) => {
-    setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3000);
-  };
+  const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3000); };
 
   const handleUpdate = async (pipe) => {
-    const newQty = Number(draft[pipe]);
-    if (!newQty || newQty < 0) return;
+    const qty = Number(draft[pipe]);
+    if (!qty || qty < 0) return;
     setSaving(s => ({ ...s, [pipe]: true }));
     try {
       await fetch("http://localhost:5000/api/stock/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pipe_type: pipe, quantity: newQty * BUNDLE_SIZE }), // send in metres
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pipe_type: pipe, quantity: qty * BUNDLE }),
       });
-      setStock(s => ({ ...s, [pipe]: newQty }));
+      setStock(s => ({ ...s, [pipe]: qty }));
       setDraft(d => ({ ...d, [pipe]: "" }));
-      showToast(`${pipe} stock updated to ${newQty} bundle${newQty !== 1 ? "s" : ""} (${newQty * BUNDLE_SIZE}m)`);
+      showToast(`${pipe} → ${qty} bundle${qty !== 1 ? "s" : ""} (${(qty * BUNDLE).toLocaleString()}m)`);
     } catch {
-      setStock(s => ({ ...s, [pipe]: newQty }));
+      setStock(s => ({ ...s, [pipe]: qty }));
       setDraft(d => ({ ...d, [pipe]: "" }));
-      showToast(`${pipe} updated to ${newQty} bundle${newQty !== 1 ? "s" : ""} (offline mode)`);
+      showToast(`${pipe} → ${qty} bundle${qty !== 1 ? "s" : ""} (offline)`);
     } finally {
       setSaving(s => ({ ...s, [pipe]: false }));
     }
   };
 
-  const alerts = PIPE_TYPES.filter(p => stock[p] < PIPE_META[p].reorder);
-  const totalStock = PIPE_TYPES.reduce((sum, p) => sum + (stock[p] || 0), 0);
+  const alerts     = PIPES.filter(p => (stock[p] || 0) < META[p].reorder);
+  const totalStock = PIPES.reduce((s, p) => s + (stock[p] || 0), 0);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 22, fontFamily: T.font }}>
 
-      {/* Toast */}
       {toast && (
-        <div style={{ position: "fixed", top: 20, right: 24, zIndex: 9999, background: toast.ok ? "rgba(0,229,160,0.12)" : "rgba(255,107,107,0.12)", border: `1px solid ${toast.ok ? T.accent : T.danger}`, borderRadius: 10, padding: "12px 20px", color: toast.ok ? T.accent : T.danger, fontSize: 13, boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
-          {toast.msg}
-        </div>
+        <div style={{ position: "fixed", top: 22, right: 26, zIndex: 9999, background: toast.ok ? T.greenSoft : T.roseSoft, border: `1px solid ${toast.ok ? T.greenBorder : T.roseBorder}`, borderRadius: 12, padding: "12px 22px", color: toast.ok ? T.green : T.rose, fontSize: 13, fontWeight: 600, boxShadow: "0 10px 40px rgba(0,0,0,0.45)", animation: "slideUp 0.22s ease both" }}>{toast.msg}</div>
       )}
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", animation: "slideUp 0.3s ease both" }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: T.text1, margin: 0, fontFamily: "'Playfair Display', serif" }}>Stock Management</h1>
-          <p style={{ fontSize: 13, color: T.text2, margin: "4px 0 0" }}>Monitor inventory levels and update stock quantities</p>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: T.t1, margin: 0, fontFamily: "'DM Serif Display', Georgia, serif" }}>Stock Management</h1>
+          <p style={{ fontSize: 13, color: T.t2, margin: "4px 0 0" }}>Monitor inventory levels and update stock quantities per pipe type</p>
         </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          {alerts.length > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.2)", borderRadius: 8, padding: "8px 14px", color: T.danger, fontSize: 12 }}>
-              ⚠ {alerts.length} pipe{alerts.length > 1 ? "s" : ""} below reorder level
-            </div>
-          )}
-          <div style={{ background: T.bg2, border: `1px solid ${T.border}`, borderRadius: 8, padding: "8px 14px" }}>
-            <div style={{ fontSize: 11, color: T.text3 }}>Total Stock</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: T.accent, fontFamily: "monospace" }}>{totalStock} bundles</div>
-            <div style={{ fontSize: 10, color: T.text3 }}>{(totalStock * BUNDLE_SIZE).toLocaleString()}m total</div>
-          </div>
+        <div style={{ background: T.bg2, border: `1px solid ${T.border}`, borderRadius: 12, padding: "12px 18px", textAlign: "right" }}>
+          <div style={{ fontSize: 10, color: T.t3, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 600, marginBottom: 4 }}>Total Stock</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: T.green, fontVariantNumeric: "tabular-nums" }}>{totalStock} bundles</div>
+          <div style={{ fontSize: 11, color: T.t3 }}>{(totalStock * BUNDLE).toLocaleString()}m total</div>
         </div>
       </div>
 
+      {/* Critical alerts banner */}
+      {alerts.length > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 14, background: T.roseSoft, border: `1px solid ${T.roseBorder}`, borderRadius: 12, padding: "13px 20px", animation: "slideUp 0.3s ease both", animationDelay: "30ms" }}>
+          <span style={{ fontSize: 18 }}>🚨</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: T.rose }}>
+              {alerts.length} pipe type{alerts.length > 1 ? "s" : ""} below reorder level!
+            </div>
+            <div style={{ fontSize: 12, color: T.t2, marginTop: 2 }}>
+              {alerts.join(" · ")} — update stock quantities below immediately.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stock cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-        {PIPE_TYPES.map(pipe => {
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
+        {PIPES.map((pipe, idx) => {
           const qty  = stock[pipe] || 0;
-          const cap  = CAPACITY[pipe];
+          const cap  = CAP[pipe];
           const pct  = Math.round((qty / cap) * 100);
           const col  = levelColor(pct);
-          const meta = PIPE_META[pipe];
-          const isCritical = qty < meta.reorder;
+          const meta = META[pipe];
+          const crit = qty < meta.reorder;
+          const pipeColor = PIPE_COLORS[idx];
 
           return (
-            <Card key={pipe} style={{ padding: "22px 24px", position: "relative", overflow: "hidden", border: isCritical ? `1px solid rgba(255,107,107,0.3)` : `1px solid ${T.border}` }}>
-              {isCritical && (
-                <div style={{ position: "absolute", top: 12, right: 12, background: "rgba(255,107,107,0.12)", border: "1px solid rgba(255,107,107,0.3)", borderRadius: 20, padding: "2px 8px", fontSize: 10, color: T.danger, fontWeight: 700 }}>
-                  REORDER
+            <div
+              key={pipe}
+              style={{
+                background: T.bg1,
+                border: `1px solid ${crit ? T.roseBorder : T.border}`,
+                borderRadius: 14, padding: "24px 24px",
+                position: "relative", overflow: "hidden",
+                animation: "slideUp 0.35s ease both",
+                animationDelay: `${60 + idx * 55}ms`,
+                transition: "box-shadow 0.2s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = "0 6px 28px rgba(0,0,0,0.35)"}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}
+            >
+              {/* Coloured top border */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${pipeColor}, transparent)` }} />
+
+              {crit && (
+                <div style={{ position: "absolute", top: 14, right: 14, background: T.roseSoft, border: `1px solid ${T.roseBorder}`, borderRadius: 20, padding: "2px 10px", fontSize: 10, color: T.rose, fontWeight: 700, animation: "pulse-red 2s infinite" }}>
+                  ⚠ REORDER NOW
                 </div>
               )}
 
               {/* Header */}
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18 }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: T.text1, marginBottom: 4 }}>{pipe}</div>
-                  <div style={{ fontSize: 11, color: T.text3 }}>Crops: {meta.crop}</div>
-                  <div style={{ fontSize: 11, color: T.text3 }}>Peak: {meta.season}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: T.t1, marginBottom: 4 }}>{pipe}</div>
+                  <div style={{ fontSize: 11, color: T.t3, marginBottom: 2 }}>{meta.crop}</div>
+                  <div style={{ fontSize: 11, color: T.t3 }}>Peak season: {meta.season}</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: col, fontFamily: "monospace" }}>{qty}</div>
-                  <div style={{ fontSize: 11, color: T.text3 }}>bundles in stock</div>
-                  <div style={{ fontSize: 10, color: T.text3 }}>{(qty * BUNDLE_SIZE).toLocaleString()}m total</div>
+                  <div style={{ fontSize: 32, fontWeight: 800, color: col, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{qty}</div>
+                  <div style={{ fontSize: 11, color: T.t3, marginTop: 2 }}>bundles in stock</div>
+                  <div style={{ fontSize: 10, color: T.t3 }}>{(qty * BUNDLE).toLocaleString()}m</div>
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <span style={{ fontSize: 11, color: T.text2 }}>{pct}% of capacity</span>
-                  <span style={{ fontSize: 11, color: col, fontWeight: 600 }}>{levelLabel(pct)}</span>
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
+                  <span style={{ fontSize: 11, color: T.t2 }}>{pct}% capacity used</span>
+                  <span style={{ fontSize: 11, color: col, fontWeight: 700 }}>{levelLabel(pct)}</span>
                 </div>
                 <div style={{ height: 8, background: T.bg3, borderRadius: 8, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${pct}%`, background: col, borderRadius: 8, transition: "width 1s ease" }} />
+                  <div style={{ height: "100%", width: `${pct}%`, background: col, borderRadius: 8, transition: "width 1.1s cubic-bezier(0.4,0,0.2,1)" }} />
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                  <span style={{ fontSize: 10, color: T.text3 }}>Reorder at {meta.reorder} bundles</span>
-                  <span style={{ fontSize: 10, color: T.text3 }}>Max {cap} bundles</span>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
+                  <span style={{ fontSize: 10, color: T.t3 }}>Reorder at {meta.reorder} bundles</span>
+                  <span style={{ fontSize: 10, color: T.t3 }}>Max: {cap} bundles</span>
                 </div>
               </div>
 
@@ -185,47 +187,56 @@ export default function StockManagement() {
                   value={draft[pipe] || ""}
                   onChange={e => setDraft(d => ({ ...d, [pipe]: e.target.value }))}
                   onKeyDown={e => e.key === "Enter" && handleUpdate(pipe)}
-                  style={{ flex: 1, background: T.bg3, border: `1px solid ${T.border}`, borderRadius: 8, padding: "8px 12px", color: T.text1, fontSize: 13, fontFamily: "'Lora', serif", outline: "none" }}
-                  onFocus={e => e.target.style.borderColor = T.copper}
+                  style={{ flex: 1, background: T.bg3, border: `1px solid ${T.border}`, borderRadius: 9, padding: "9px 12px", color: T.t1, fontSize: 13, fontFamily: T.font, outline: "none" }}
+                  onFocus={e => e.target.style.borderColor = T.amber}
                   onBlur={e => e.target.style.borderColor = T.border}
                 />
                 <button
                   onClick={() => handleUpdate(pipe)}
                   disabled={saving[pipe] || !draft[pipe]}
-                  style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: saving[pipe] || !draft[pipe] ? T.bg3 : T.copper, color: saving[pipe] || !draft[pipe] ? T.text3 : "#04080F", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Lora', serif", transition: "background 0.2s", whiteSpace: "nowrap" }}
-                >
-                  {saving[pipe] ? "Saving…" : "Update"}
-                </button>
+                  style={{
+                    padding: "9px 20px", borderRadius: 9, border: "none",
+                    background: (saving[pipe] || !draft[pipe]) ? T.bg3 : T.amber,
+                    color: (saving[pipe] || !draft[pipe]) ? T.t3 : "#04080F",
+                    fontSize: 13, fontWeight: 700, cursor: "pointer",
+                    fontFamily: T.font, whiteSpace: "nowrap", transition: "background 0.15s",
+                  }}
+                >{saving[pipe] ? "Saving…" : "Update"}</button>
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>
 
-      {/* Stock history table */}
-      <Card style={{ padding: "22px 24px" }}>
-        <div style={{ marginBottom: 18 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: T.text1, margin: 0 }}>Stock History (Last 5 Days)</h2>
-          <p style={{ fontSize: 12, color: T.text2, margin: "4px 0 0" }}>Inventory levels in metres</p>
+      {/* History table */}
+      <div style={{ background: T.bg1, border: `1px solid ${T.border}`, borderRadius: 14, overflow: "hidden", animation: "slideUp 0.35s ease both", animationDelay: "280ms" }}>
+        <div style={{ padding: "20px 24px 16px" }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: T.t1, margin: 0 }}>Stock History — Last 5 Days</h2>
+          <p style={{ fontSize: 12, color: T.t2, margin: "4px 0 0" }}>Inventory levels in bundles · Critical values highlighted in red</p>
         </div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
             <thead>
-              <tr>
-                {["Date", ...PIPE_TYPES].map(h => (
-                  <th key={h} style={{ textAlign: "left", fontSize: 11, color: T.text3, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", paddingBottom: 10, borderBottom: `1px solid ${T.border}`, paddingRight: 16 }}>{h}</th>
+              <tr style={{ borderTop: `1px solid ${T.border}` }}>
+                {["Date", ...PIPES].map(h => (
+                  <th key={h} style={{ textAlign: "left", fontSize: 10, color: T.t3, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", padding: "12px 24px", borderBottom: `1px solid ${T.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {STOCK_HISTORY.map((row, i) => (
-                <tr key={i}>
-                  <td style={{ padding: "10px 16px 10px 0", fontSize: 12, color: T.text2, borderBottom: `1px solid ${T.border}` }}>{row.date}</td>
-                  {PIPE_TYPES.map(pipe => {
-                    const isLow = row[pipe] < PIPE_META[pipe].reorder;
+              {HISTORY.map((row, i) => (
+                <tr key={i}
+                  onMouseEnter={e => e.currentTarget.style.background = T.bg2}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  style={{ transition: "background 0.12s" }}
+                >
+                  <td style={{ padding: "11px 24px", fontSize: 12, color: T.t2, borderBottom: `1px solid ${T.border}` }}>{row.date}</td>
+                  {PIPES.map((pipe, pi) => {
+                    const isLow = row[pipe] < META[pipe].reorder;
                     return (
-                      <td key={pipe} style={{ padding: "10px 16px 10px 0", fontSize: 12, color: isLow ? T.danger : T.text1, fontWeight: isLow ? 700 : 400, borderBottom: `1px solid ${T.border}`, fontFamily: "monospace" }}>
-                        {row[pipe].toLocaleString()}
+                      <td key={pipe} style={{ padding: "11px 24px", fontSize: 12, color: isLow ? T.rose : T.t1, fontWeight: isLow ? 700 : 400, fontVariantNumeric: "tabular-nums", borderBottom: `1px solid ${T.border}` }}>
+                        {row[pipe]}
+                        {isLow && <span style={{ fontSize: 9, color: T.rose, marginLeft: 4 }}>▼ LOW</span>}
                       </td>
                     );
                   })}
@@ -234,7 +245,7 @@ export default function StockManagement() {
             </tbody>
           </table>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -333,6 +333,37 @@ app.post("/api/orders", async (req, res) => {
 });
 
 /* =========================
+   Get All Orders (Admin)
+========================= */
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ created_at: -1 }).limit(200);
+    res.json(orders);
+  } catch (error) {
+    console.error("Orders Fetch Error:", error);
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
+
+/* =========================
+   Approve Order (Admin)
+========================= */
+app.post("/api/orders/approve/:id", async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: "Approved", requires_approval: false },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    res.json({ message: "Order approved successfully", order });
+  } catch (error) {
+    console.error("Order Approve Error:", error);
+    res.status(500).json({ error: "Order approval failed" });
+  }
+});
+
+/* =========================
    Start Server
 ========================= */
 app.listen(5000, () => {
