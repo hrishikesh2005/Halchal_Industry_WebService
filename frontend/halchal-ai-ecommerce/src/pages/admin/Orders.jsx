@@ -192,7 +192,7 @@ export default function Orders() {
                       <td style={{ padding: "13px 16px" }}>
                         <div style={{ display: "flex", gap: 6 }} onClick={e => e.stopPropagation()}>
                           {order.requires_approval && (
-                            <button onClick={() => approveOrder(order._id)} style={{ padding: "5px 12px", borderRadius: 7, border: "none", background: T.greenSoft, color: T.green, fontSize: 11, fontWeight: 700, cursor: "pointer", border: `1px solid ${T.greenBorder}` }}>
+                            <button onClick={() => approveOrder(order._id)} style={{ padding: "5px 12px", borderRadius: 7, background: T.greenSoft, color: T.green, fontSize: 11, fontWeight: 700, cursor: "pointer", border: `1px solid ${T.greenBorder}` }}>
                               Approve
                             </button>
                           )}

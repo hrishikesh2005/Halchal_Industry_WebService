@@ -249,7 +249,7 @@ export default function Settings() {
               {Object.entries(MODEL_CONFIG).map(([k, v]) => (
                 <div key={k} style={{ background: T.bg3, borderRadius: 10, padding: "14px 16px" }}>
                   <div style={{ fontSize: 10, color: T.text3, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>{k.replace(/([A-Z])/g, " $1")}</div>
-                  <div style={{ fontSize: 13, color: T.text1, fontWeight: k === "accuracy" ? 700 : 400, color: k === "accuracy" ? T.accent : T.text1 }}>{v}</div>
+                  <div style={{ fontSize: 13, fontWeight: k === "accuracy" ? 700 : 400, color: k === "accuracy" ? T.accent : T.text1 }}>{v}</div>
                 </div>
               ))}
             </div>

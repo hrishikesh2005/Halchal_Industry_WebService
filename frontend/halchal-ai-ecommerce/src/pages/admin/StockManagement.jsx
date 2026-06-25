@@ -40,10 +40,8 @@ export default function StockManagement() {
   const [draft,   setDraft]   = useState({});
   const [saving,  setSaving]  = useState({});
   const [toast,   setToast]   = useState(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
     fetch(`${API_BASE}/api/stock`)
       .then(r => r.json())
       .then(d => {
@@ -51,8 +49,7 @@ export default function StockManagement() {
         d.forEach(item => { f[item.pipe_type] = Math.floor(item.quantity / BUNDLE); });
         setStock(s => ({ ...s, ...f }));
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {});
   }, []);
 
   const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3000); };
