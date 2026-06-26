@@ -77,7 +77,8 @@ app.post("/api/ai-price", async (req, res) => {
     ]);
     const prevMonthSales = salesAgg[0]?.total ?? 450;
 
-    const mlResponse = await axios.post("http://localhost:5001/calculate-price", {
+    const ML_API_URL = process.env.ML_API_URL || "http://localhost:5001";
+    const mlResponse = await axios.post(`${ML_API_URL}/calculate-price`, {
       pipeType:         pipe_type,
       state:            resolvedState,
       zone_id:          zoneKey || "Z1",
