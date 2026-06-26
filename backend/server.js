@@ -71,11 +71,16 @@ app.post("/api/ai-price", async (req, res) => {
       Math.floor(thirtyDaysAgo.getTime() / 1000).toString(16).padStart(8, "0") +
       "0000000000000000"
     );
-    const salesAgg = await Order.aggregate([
-      { $match: { _id: { $gte: minId }, pipe_type: { $regex: category, $options: "i" } } },
-      { $group: { _id: null, total: { $sum: "$quantity" } } }
-    ]);
-    const prevMonthSales = salesAgg[0]?.total ?? 450;
+    let prevMonthSales = 450;
+    try {
+      const salesAgg = await Order.aggregate([
+        { $match: { _id: { $gte: minId }, pipe_type: { $regex: category, $options: "i" } } },
+        { $group: { _id: null, total: { $sum: "$quantity" } } }
+      ]).maxTimeMS(5000);
+      prevMonthSales = salesAgg[0]?.total ?? 450;
+    } catch (dbErr) {
+      console.warn("DB aggregate skipped, using default:", dbErr.message);
+    }
 
     const ML_API_URL = process.env.ML_API_URL || "http://localhost:5001";
     const mlResponse = await axios.post(`${ML_API_URL}/calculate-price`, {
