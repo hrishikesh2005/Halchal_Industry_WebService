@@ -21,7 +21,9 @@ const orderSchema = new mongoose.Schema({
   zone:             String,
   predicted_demand: Number,
 
-  session_id:       String,   // links to the Cart session that generated this order
+  session_id:       String,
+  payment_id:       String,   // Razorpay payment ID
+  razorpay_order_id: String,  // Razorpay order ID
   created_at:       { type: Date, default: Date.now },
 });
 

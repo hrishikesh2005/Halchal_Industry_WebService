@@ -4,7 +4,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const axios = require("axios");
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
 require("dotenv").config();
+
+const razorpay = new Razorpay({
+  key_id:     process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 const { calculateFinalOrderPrice } = require("./utils/pricingEngine");
 
@@ -366,6 +373,88 @@ app.post("/api/orders/approve/:id", async (req, res) => {
   } catch (error) {
     console.error("Order Approve Error:", error);
     res.status(500).json({ error: "Order approval failed" });
+  }
+});
+
+/* =========================
+   Razorpay — Create Order
+========================= */
+app.post("/api/payment/create-order", async (req, res) => {
+  try {
+    const { amount } = req.body; // amount in rupees
+    const order = await razorpay.orders.create({
+      amount:   Math.round(amount * 100), // paise
+      currency: "INR",
+      receipt:  `rcpt_${Date.now()}`,
+    });
+    res.json(order);
+  } catch (error) {
+    console.error("Razorpay create-order error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/* =========================
+   Razorpay — Verify & Save
+========================= */
+app.post("/api/payment/verify", async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, items, session_id } = req.body;
+
+    // Verify HMAC signature
+    const expected = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (expected !== razorpay_signature) {
+      return res.status(400).json({ error: "Payment verification failed" });
+    }
+
+    // Save each cart item as an order
+    for (const item of items) {
+      const quantity = item.quantity;
+      let status = "Shipped";
+      let requiresApproval = false;
+
+      if (quantity > 100) {
+        status = "Pending Approval";
+        requiresApproval = true;
+      } else {
+        const stockItem = await Stock.findOneAndUpdate(
+          { pipe_type: item.name, quantity: { $gte: quantity } },
+          { $inc: { quantity: -quantity }, $set: { updated_at: new Date() } },
+          { new: true }
+        ).catch(() => null);
+        if (!stockItem) { status = "Pending Approval"; requiresApproval = true; }
+      }
+
+      await new Order({
+        pipe_type:        item.name,
+        quantity,
+        region:           item.state,
+        status,
+        requires_approval: requiresApproval,
+        approved_price:   item.approvedPrice,
+        final_price:      item.finalPrice,
+        discount_percent: item.discountPercent,
+        total_ex_gst:     item.totalExGST,
+        total_gst:        item.totalGST,
+        total_with_gst:   item.totalWithGST,
+        gst_rate:         12,
+        season:           item.season,
+        zone:             item.zone,
+        predicted_demand: item.predicted_demand,
+        session_id,
+        payment_id:       razorpay_payment_id,
+        razorpay_order_id,
+      }).save().catch(console.error);
+    }
+
+    res.json({ success: true, payment_id: razorpay_payment_id });
+  } catch (error) {
+    console.error("Razorpay verify error:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -291,43 +291,73 @@ const Cart = () => {
   const handlePlaceAllOrders = async () => {
     setPlacing(true);
     setResults(null);
-    const outcomes = [];
-    for (const item of items) {
-      try {
-        const res  = await fetch(`${API_BASE}/api/orders`, {
-          method:  "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            pipe_type:        item.name,
-            quantity:         item.quantity,
-            region:           item.state,
-            session_id:       sessionId,
-            // Full pricing snapshot saved to Atlas
-            approved_price:   item.approvedPrice,
-            final_price:      item.finalPrice,
-            discount_percent: item.discountPercent,
-            total_ex_gst:     item.totalExGST,
-            total_gst:        item.totalGST,
-            total_with_gst:   item.totalWithGST,
-            season:           item.season,
-            zone:             item.zone,
-            predicted_demand: item.predicted_demand,
-          }),
-        });
-        const data = await res.json();
-        outcomes.push({
-          name:    item.name,
-          status:  res.ok ? "ok" : "err",
-          message: res.ok ? data.message : (data.error || "Order failed"),
-        });
-      } catch {
-        outcomes.push({ name: item.name, status: "err", message: "Network error" });
-      }
+
+    // Total payable amount across all cart items
+    const totalAmount = items.reduce((sum, item) => sum + (item.totalWithGST || 0), 0);
+
+    try {
+      // Step 1: Create Razorpay order on backend
+      const orderRes = await fetch(`${API_BASE}/api/payment/create-order`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ amount: totalAmount }),
+      });
+      const rzpOrder = await orderRes.json();
+      if (!orderRes.ok) throw new Error(rzpOrder.error || "Failed to create payment order");
+
+      // Step 2: Open Razorpay checkout
+      const options = {
+        key:         process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount:      rzpOrder.amount,
+        currency:    "INR",
+        name:        "Halchal Industries",
+        description: `Order for ${items.length} product(s)`,
+        order_id:    rzpOrder.id,
+        handler: async (response) => {
+          // Step 3: Verify payment and save orders
+          try {
+            const verifyRes = await fetch(`${API_BASE}/api/payment/verify`, {
+              method:  "POST",
+              headers: { "Content-Type": "application/json" },
+              body:    JSON.stringify({
+                razorpay_order_id:   response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature:  response.razorpay_signature,
+                session_id:          sessionId,
+                items,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyRes.ok && verifyData.success) {
+              setResults(items.map(i => ({ name: i.name, status: "ok", message: "Order placed!" })));
+              clearCart();
+              setOrdersDone(true);
+            } else {
+              setResults([{ name: "Payment", status: "err", message: verifyData.error || "Verification failed" }]);
+            }
+          } catch {
+            setResults([{ name: "Payment", status: "err", message: "Network error during verification" }]);
+          }
+          setPlacing(false);
+        },
+        prefill: { name: "", email: "", contact: "" },
+        theme:   { color: "#00E5A0" },
+        modal: {
+          ondismiss: () => setPlacing(false),
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", () => {
+        setResults([{ name: "Payment", status: "err", message: "Payment failed. Please try again." }]);
+        setPlacing(false);
+      });
+      rzp.open();
+
+    } catch (err) {
+      setResults([{ name: "Payment", status: "err", message: err.message }]);
+      setPlacing(false);
     }
-    setResults(outcomes);
-    setPlacing(false);
-    const allOk = outcomes.every(o => o.status === "ok");
-    if (allOk) { clearCart(); setOrdersDone(true); }
   };
 
   /* ── Empty cart ─────────────────────────────────────── */
