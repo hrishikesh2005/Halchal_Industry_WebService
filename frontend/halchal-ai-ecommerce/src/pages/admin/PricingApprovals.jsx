@@ -76,8 +76,8 @@ export default function PricingApprovals() {
             body: JSON.stringify({ pipe_type: pipe, zone, month, year, govt_subsidy: 0 }),
           }).then(r => r.json()),
         ]);
-        let wp = ws.recommended_price ?? ws.final_price;
-        let np = ns.recommended_price ?? ns.final_price;
+        let wp = ws.approvedPrice ?? ws.finalPrice;
+        let np = ns.approvedPrice ?? ns.finalPrice;
         if (wp && wp < 100) wp = Math.round(wp * 300 / 10) * 10;
         if (np && np < 100) np = Math.round(np * 300 / 10) * 10;
         if (wp) wp = Math.round(wp * activeZone.mult / 10) * 10;
