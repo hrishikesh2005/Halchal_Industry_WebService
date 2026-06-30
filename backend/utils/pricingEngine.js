@@ -5,13 +5,12 @@ function calculateFinalOrderPrice({ approvedPrice, quantity }) {
   if (!approvedPrice || approvedPrice <= 0) throw new Error("Invalid approved price");
   if (!quantity    || quantity    <= 0) throw new Error("Invalid quantity");
 
-  // Realistic discount tiers — typical for drip pipe dealers in India
   let discountFactor = 1.00;
-  if      (quantity >= 500) discountFactor = 0.92; // 8%
-  else if (quantity >= 100) discountFactor = 0.94; // 6%
-  else if (quantity >=  50) discountFactor = 0.96; // 4%
-  else if (quantity >=  10) discountFactor = 0.98; // 2%
-  else if (quantity >=   5) discountFactor = 0.99; // 1%
+  if      (quantity >= 500) discountFactor = 0.80; // 20%
+  else if (quantity >= 100) discountFactor = 0.80; // 20%
+  else if (quantity >=  50) discountFactor = 0.90; // 10%
+  else if (quantity >=  10) discountFactor = 0.90; // 10%
+  else if (quantity >=   5) discountFactor = 0.90; // 10%
 
   // Price per coil after discount, rounded to ₹10
   const pricePerCoil = Math.round((approvedPrice * discountFactor) / 10) * 10;
