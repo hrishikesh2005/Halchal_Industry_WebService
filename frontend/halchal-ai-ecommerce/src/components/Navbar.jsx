@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import logo from "../assets/logo.jpg";
 import { useCart } from "../context/CartContext";
 import { useTheme, useThemeToggle } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 
 /* ─── Icons ────────────────────────────────────────────────── */
 const CartIcon = () => (
@@ -134,14 +135,12 @@ const Navbar = ({ activePage }) => {
   const T                   = useTheme();
   const { toggle, isDark }  = useThemeToggle();
 
+  const { user: currentUser, isLoggedIn, logout } = useAuth();
+
   const [scrolled,    setScrolled]    = useState(false);
   const [searchOpen,  setSearchOpen]  = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [menuOpen,    setMenuOpen]    = useState(false);
-  const [isLoggedIn,  setIsLoggedIn]  = useState(() => !!localStorage.getItem("halchal_auth"));
-  const [currentUser, setCurrentUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("halchal_user") || "null"); } catch { return null; }
-  });
 
   const profileRef  = useRef(null);
   const searchRef   = useRef(null);
@@ -171,10 +170,7 @@ const Navbar = ({ activePage }) => {
   useEffect(() => { setMenuOpen(false); }, [currentPath]);
 
   const handleLogout = () => {
-    localStorage.removeItem("halchal_auth");
-    localStorage.removeItem("halchal_user");
-    setIsLoggedIn(false);
-    setCurrentUser(null);
+    logout();
     setProfileOpen(false);
     navigate("/home");
   };

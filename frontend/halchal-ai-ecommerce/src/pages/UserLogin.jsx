@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import API_BASE from "../config";
+import { useAuth } from "../context/AuthContext";
 
 const T = {
   bg0: "#05070F", bg1: "#080D1C", bg2: "#0D1628", bg3: "#121F38",
@@ -29,7 +30,11 @@ const AlertIcon = () => (
 );
 
 export default function UserLogin() {
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
+  const location   = useLocation();
+  const { login }  = useAuth();
+  const redirectTo = new URLSearchParams(location.search).get("redirect") || "/home";
+
   const [mode,     setMode]     = useState("login"); // "login" | "register"
   const [name,     setName]     = useState("");
   const [email,    setEmail]    = useState("");
@@ -87,10 +92,9 @@ export default function UserLogin() {
         return;
       }
 
-      // Success — store user info and navigate
-      localStorage.setItem("halchal_auth", "1");
-      localStorage.setItem("halchal_user", JSON.stringify(data.user));
-      navigate("/home");
+      // Success — store via AuthContext (updates Navbar immediately) then redirect
+      login(data.user);
+      navigate(redirectTo, { replace: true });
     } catch {
       setApiError("Cannot connect to server. Make sure the backend is running.");
       setLoading(false);
