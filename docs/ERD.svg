@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" font-family="Segoe UI, Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="1200" height="820" fill="#F8FAFC" rx="12"/>
+
+  <!-- Title -->
+  <text x="600" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#1E293B">
+    Halchal AI — Entity Relationship Diagram
+  </text>
+  <text x="600" y="64" text-anchor="middle" font-size="13" fill="#64748B">
+    MongoDB Atlas · Node.js Backend · Flask ML API
+  </text>
+
+  <!-- ============================================================
+       DEFS — arrowhead markers
+  ============================================================ -->
+  <defs>
+    <!-- one -->
+    <marker id="one" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <line x1="4" y1="1" x2="4" y2="7" stroke="#94A3B8" stroke-width="1.5"/>
+    </marker>
+    <!-- many -->
+    <marker id="many" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto">
+      <path d="M0,2 L5,5 L0,8" fill="none" stroke="#94A3B8" stroke-width="1.5"/>
+    </marker>
+    <!-- crow-foot many end -->
+    <marker id="crow" markerWidth="12" markerHeight="12" refX="2" refY="6" orient="auto">
+      <path d="M0,3 L6,6 L0,9 M0,6 L6,6" fill="none" stroke="#94A3B8" stroke-width="1.5"/>
+    </marker>
+    <marker id="crowBlue" markerWidth="12" markerHeight="12" refX="2" refY="6" orient="auto">
+      <path d="M0,3 L6,6 L0,9 M0,6 L6,6" fill="none" stroke="#6366F1" stroke-width="1.5"/>
+    </marker>
+    <marker id="oneBlue" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <line x1="4" y1="1" x2="4" y2="7" stroke="#6366F1" stroke-width="1.5"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000018"/>
+    </filter>
+  </defs>
+
+  <!-- ============================================================
+       ENTITY: CART  (left-centre)
+  ============================================================ -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="100" width="260" height="390" rx="10" fill="#FFFFFF" stroke="#6366F1" stroke-width="2"/>
+  </g>
+  <!-- header -->
+  <rect x="40" y="100" width="260" height="44" rx="10" fill="#6366F1"/>
+  <rect x="40" y="128" width="260" height="16" fill="#6366F1"/>
+  <text x="170" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">CART</text>
+  <text x="170" y="143" text-anchor="middle" font-size="10" fill="#C7D2FE">Collection: carts</text>
+
+  <!-- PK row -->
+  <rect x="40" y="144" width="260" height="28" fill="#EEF2FF"/>
+  <text x="56" y="163" font-size="11" font-weight="700" fill="#4338CA">PK</text>
+  <text x="78" y="163" font-size="11" fill="#1E293B">_id</text>
+  <text x="290" y="163" text-anchor="end" font-size="10" fill="#64748B">ObjectId</text>
+
+  <!-- fields -->
+  <line x1="40" y1="172" x2="300" y2="172" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="56" y="189" font-size="11" font-weight="700" fill="#7C3AED">UK</text>
+  <text x="78" y="189" font-size="11" fill="#1E293B">sessionId</text>
+  <text x="290" y="189" text-anchor="end" font-size="10" fill="#64748B">String (UUID)</text>
+
+  <line x1="40" y1="196" x2="300" y2="196" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="56" y="213" font-size="11" fill="#1E293B">  items[]</text>
+  <text x="290" y="213" text-anchor="end" font-size="10" fill="#64748B">Embedded Array</text>
+
+  <line x1="40" y1="220" x2="300" y2="220" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="237" font-size="10" fill="#64748B">  ↳ id</text>
+  <text x="290" y="237" text-anchor="end" font-size="10" fill="#64748B">String (name__state)</text>
+
+  <line x1="40" y1="244" x2="300" y2="244" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="261" font-size="10" fill="#64748B">  ↳ name</text>
+  <text x="290" y="261" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="40" y1="268" x2="300" y2="268" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="285" font-size="10" fill="#64748B">  ↳ state</text>
+  <text x="290" y="285" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="40" y1="292" x2="300" y2="292" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="309" font-size="10" fill="#64748B">  ↳ quantity</text>
+  <text x="290" y="309" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="40" y1="316" x2="300" y2="316" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="333" font-size="10" fill="#64748B">  ↳ approvedPrice</text>
+  <text x="290" y="333" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="40" y1="340" x2="300" y2="340" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="357" font-size="10" fill="#64748B">  ↳ finalPrice</text>
+  <text x="290" y="357" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="40" y1="364" x2="300" y2="364" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="381" font-size="10" fill="#64748B">  ↳ totalWithGST</text>
+  <text x="290" y="381" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="40" y1="388" x2="300" y2="388" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="66" y="405" font-size="10" fill="#64748B">  ↳ season / zone</text>
+  <text x="290" y="405" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="40" y1="412" x2="300" y2="412" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="56" y="429" font-size="11" fill="#1E293B">createdAt</text>
+  <text x="290" y="429" text-anchor="end" font-size="10" fill="#64748B">Date (auto)</text>
+  <line x1="40" y1="436" x2="300" y2="436" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="56" y="453" font-size="11" fill="#1E293B">updatedAt</text>
+  <text x="290" y="453" text-anchor="end" font-size="10" fill="#64748B">Date (auto)</text>
+  <line x1="40" y1="460" x2="300" y2="460" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="56" y="477" font-size="11" fill="#1E293B">addedAt</text>
+  <text x="290" y="477" text-anchor="end" font-size="10" fill="#64748B">Number (epoch ms)</text>
+
+  <!-- ============================================================
+       ENTITY: ORDER  (centre)
+  ============================================================ -->
+  <g filter="url(#shadow)">
+    <rect x="370" y="100" width="270" height="430" rx="10" fill="#FFFFFF" stroke="#10B981" stroke-width="2"/>
+  </g>
+  <rect x="370" y="100" width="270" height="44" rx="10" fill="#10B981"/>
+  <rect x="370" y="128" width="270" height="16" fill="#10B981"/>
+  <text x="505" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">ORDER</text>
+  <text x="505" y="143" text-anchor="middle" font-size="10" fill="#A7F3D0">Collection: orders</text>
+
+  <rect x="370" y="144" width="270" height="28" fill="#ECFDF5"/>
+  <text x="386" y="163" font-size="11" font-weight="700" fill="#065F46">PK</text>
+  <text x="408" y="163" font-size="11" fill="#1E293B">_id</text>
+  <text x="630" y="163" text-anchor="end" font-size="10" fill="#64748B">ObjectId</text>
+
+  <line x1="370" y1="172" x2="640" y2="172" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="189" font-size="11" font-weight="700" fill="#059669">FK</text>
+  <text x="408" y="189" font-size="11" fill="#1E293B">session_id</text>
+  <text x="630" y="189" text-anchor="end" font-size="10" fill="#64748B">String → Cart.sessionId</text>
+
+  <line x1="370" y1="196" x2="640" y2="196" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="213" font-size="11" font-weight="700" fill="#059669">FK</text>
+  <text x="408" y="213" font-size="11" fill="#1E293B">pipe_type</text>
+  <text x="630" y="213" text-anchor="end" font-size="10" fill="#64748B">String → Stock.pipe_type</text>
+
+  <line x1="370" y1="220" x2="640" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="237" font-size="11" fill="#1E293B">quantity</text>
+  <text x="630" y="237" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="370" y1="244" x2="640" y2="244" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="261" font-size="11" fill="#1E293B">region</text>
+  <text x="630" y="261" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="370" y1="268" x2="640" y2="268" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="285" font-size="11" fill="#1E293B">status</text>
+  <text x="630" y="285" text-anchor="end" font-size="10" fill="#64748B">String (Pending/Shipped…)</text>
+
+  <line x1="370" y1="292" x2="640" y2="292" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="309" font-size="11" fill="#1E293B">requires_approval</text>
+  <text x="630" y="309" text-anchor="end" font-size="10" fill="#64748B">Boolean</text>
+
+  <line x1="370" y1="316" x2="640" y2="316" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="333" font-size="10" fill="#94A3B8">── Pricing Snapshot ──</text>
+
+  <line x1="370" y1="340" x2="640" y2="340" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="357" font-size="11" fill="#1E293B">approved_price</text>
+  <text x="630" y="357" text-anchor="end" font-size="10" fill="#64748B">Number (per coil AI)</text>
+
+  <line x1="370" y1="364" x2="640" y2="364" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="381" font-size="11" fill="#1E293B">final_price</text>
+  <text x="630" y="381" text-anchor="end" font-size="10" fill="#64748B">Number (after discount)</text>
+
+  <line x1="370" y1="388" x2="640" y2="388" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="405" font-size="11" fill="#1E293B">discount_percent</text>
+  <text x="630" y="405" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="370" y1="412" x2="640" y2="412" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="429" font-size="11" fill="#1E293B">total_ex_gst / total_gst</text>
+  <text x="630" y="429" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="370" y1="436" x2="640" y2="436" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="453" font-size="11" fill="#1E293B">total_with_gst</text>
+  <text x="630" y="453" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="370" y1="460" x2="640" y2="460" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="477" font-size="10" fill="#94A3B8">── ML Context ──</text>
+
+  <line x1="370" y1="484" x2="640" y2="484" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="501" font-size="11" fill="#1E293B">season</text>
+  <text x="630" y="501" text-anchor="end" font-size="10" fill="#64748B">String (Kharif/Rabi/Summer)</text>
+
+  <line x1="370" y1="508" x2="640" y2="508" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="386" y="525" font-size="11" fill="#1E293B">zone / predicted_demand</text>
+  <text x="630" y="525" text-anchor="end" font-size="10" fill="#64748B">String / Number</text>
+
+  <!-- ============================================================
+       ENTITY: STOCK  (top-right)
+  ============================================================ -->
+  <g filter="url(#shadow)">
+    <rect x="720" y="100" width="230" height="170" rx="10" fill="#FFFFFF" stroke="#F59E0B" stroke-width="2"/>
+  </g>
+  <rect x="720" y="100" width="230" height="44" rx="10" fill="#F59E0B"/>
+  <rect x="720" y="128" width="230" height="16" fill="#F59E0B"/>
+  <text x="835" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">STOCK</text>
+  <text x="835" y="143" text-anchor="middle" font-size="10" fill="#FEF3C7">Collection: stocks</text>
+
+  <rect x="720" y="144" width="230" height="28" fill="#FFFBEB"/>
+  <text x="736" y="163" font-size="11" font-weight="700" fill="#92400E">PK</text>
+  <text x="758" y="163" font-size="11" fill="#1E293B">_id</text>
+  <text x="940" y="163" text-anchor="end" font-size="10" fill="#64748B">ObjectId</text>
+
+  <line x1="720" y1="172" x2="950" y2="172" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="189" font-size="11" font-weight="700" fill="#B45309">UK</text>
+  <text x="758" y="189" font-size="11" fill="#1E293B">pipe_type</text>
+  <text x="940" y="189" text-anchor="end" font-size="10" fill="#64748B">String (unique)</text>
+
+  <line x1="720" y1="196" x2="950" y2="196" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="213" font-size="11" fill="#1E293B">quantity</text>
+  <text x="940" y="213" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="720" y1="220" x2="950" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="237" font-size="11" fill="#1E293B">updated_at</text>
+  <text x="940" y="237" text-anchor="end" font-size="10" fill="#64748B">Date</text>
+
+  <!-- ============================================================
+       ENTITY: APPROVED PRICE  (bottom-right)
+  ============================================================ -->
+  <g filter="url(#shadow)">
+    <rect x="720" y="320" width="230" height="200" rx="10" fill="#FFFFFF" stroke="#EF4444" stroke-width="2"/>
+  </g>
+  <rect x="720" y="320" width="230" height="44" rx="10" fill="#EF4444"/>
+  <rect x="720" y="348" width="230" height="16" fill="#EF4444"/>
+  <text x="835" y="348" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">APPROVED PRICE</text>
+  <text x="835" y="363" text-anchor="middle" font-size="10" fill="#FECACA">Collection: approvedprices</text>
+
+  <rect x="720" y="364" width="230" height="28" fill="#FFF5F5"/>
+  <text x="736" y="383" font-size="11" font-weight="700" fill="#991B1B">PK</text>
+  <text x="758" y="383" font-size="11" fill="#1E293B">_id</text>
+  <text x="940" y="383" text-anchor="end" font-size="10" fill="#64748B">ObjectId</text>
+
+  <line x1="720" y1="392" x2="950" y2="392" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="409" font-size="11" fill="#1E293B">pipe_type</text>
+  <text x="940" y="409" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="720" y1="416" x2="950" y2="416" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="433" font-size="11" fill="#1E293B">region</text>
+  <text x="940" y="433" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="720" y1="440" x2="950" y2="440" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="457" font-size="11" fill="#1E293B">price</text>
+  <text x="940" y="457" text-anchor="end" font-size="10" fill="#64748B">Number (₹ per coil)</text>
+
+  <line x1="720" y1="464" x2="950" y2="464" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="481" font-size="11" fill="#1E293B">approved_at</text>
+  <text x="940" y="481" text-anchor="end" font-size="10" fill="#64748B">Date</text>
+
+  <line x1="720" y1="488" x2="950" y2="488" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="736" y="505" font-size="11" fill="#1E293B">gst_rate</text>
+  <text x="940" y="505" text-anchor="end" font-size="10" fill="#64748B">Number (12%)</text>
+
+  <!-- ============================================================
+       ENTITY: ML PRICING ENGINE  (far right, external service)
+  ============================================================ -->
+  <g filter="url(#shadow)">
+    <rect x="990" y="100" width="185" height="310" rx="10" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="6,3"/>
+  </g>
+  <rect x="990" y="100" width="185" height="44" rx="10" fill="#8B5CF6"/>
+  <rect x="990" y="128" width="185" height="16" fill="#8B5CF6"/>
+  <text x="1082" y="126" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">ML PRICING</text>
+  <text x="1082" y="141" text-anchor="middle" font-size="10" fill="#DDD6FE">ENGINE</text>
+  <text x="1082" y="156" text-anchor="middle" font-size="9" fill="#EDE9FE">Flask · Port 5001 (external)</text>
+
+  <line x1="990" y1="168" x2="1175" y2="168" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="185" font-size="10" fill="#64748B">pipeType</text>
+  <text x="1175" y="185" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="990" y1="192" x2="1175" y2="192" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="209" font-size="10" fill="#64748B">state / zone_id</text>
+  <text x="1175" y="209" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <line x1="990" y1="216" x2="1175" y2="216" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="233" font-size="10" fill="#64748B">month / year</text>
+  <text x="1175" y="233" text-anchor="end" font-size="10" fill="#64748B">Int</text>
+
+  <line x1="990" y1="240" x2="1175" y2="240" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="257" font-size="10" fill="#64748B">prev_month_sales</text>
+  <text x="1175" y="257" text-anchor="end" font-size="10" fill="#64748B">Float</text>
+
+  <line x1="990" y1="264" x2="1175" y2="264" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="281" font-size="10" fill="#64748B">govt_subsidy</text>
+  <text x="1175" y="281" text-anchor="end" font-size="10" fill="#64748B">Int (0/1)</text>
+
+  <line x1="990" y1="288" x2="1175" y2="288" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="298" font-size="9" fill="#94A3B8">── Response ──</text>
+
+  <line x1="990" y1="304" x2="1175" y2="304" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="321" font-size="10" fill="#64748B">final_price</text>
+  <text x="1175" y="321" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="990" y1="328" x2="1175" y2="328" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="345" font-size="10" fill="#64748B">predicted_demand</text>
+  <text x="1175" y="345" text-anchor="end" font-size="10" fill="#64748B">Number</text>
+
+  <line x1="990" y1="352" x2="1175" y2="352" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="369" font-size="10" fill="#64748B">factors{}</text>
+  <text x="1175" y="369" text-anchor="end" font-size="10" fill="#64748B">Object</text>
+
+  <line x1="990" y1="376" x2="1175" y2="376" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="393" font-size="10" fill="#64748B">season</text>
+  <text x="1175" y="393" text-anchor="end" font-size="10" fill="#64748B">String</text>
+
+  <!-- ============================================================
+       ENTITY: RF MODEL  (bottom external)
+  ============================================================ -->
+  <g filter="url(#shadow)">
+    <rect x="990" y="450" width="185" height="160" rx="10" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="6,3"/>
+  </g>
+  <rect x="990" y="450" width="185" height="44" rx="10" fill="#8B5CF6"/>
+  <rect x="990" y="478" width="185" height="16" fill="#8B5CF6"/>
+  <text x="1082" y="476" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">RF MODEL</text>
+  <text x="1082" y="491" text-anchor="middle" font-size="10" fill="#DDD6FE">rf_demand_model.pkl</text>
+
+  <line x1="990" y1="502" x2="1175" y2="502" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="519" font-size="10" fill="#64748B">Pipe_Type_enc</text>
+  <text x="1175" y="519" text-anchor="end" font-size="10" fill="#64748B">Int</text>
+
+  <line x1="990" y1="526" x2="1175" y2="526" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="543" font-size="10" fill="#64748B">Zone_ID / Adoption</text>
+  <text x="1175" y="543" text-anchor="end" font-size="10" fill="#64748B">Float</text>
+
+  <line x1="990" y1="550" x2="1175" y2="550" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="567" font-size="10" fill="#64748B">Season_enc</text>
+  <text x="1175" y="567" text-anchor="end" font-size="10" fill="#64748B">Int</text>
+
+  <line x1="990" y1="574" x2="1175" y2="574" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="1006" y="591" font-size="10" fill="#64748B">Base_Price / Subsidy</text>
+  <text x="1175" y="591" text-anchor="end" font-size="10" fill="#64748B">Float / Int</text>
+
+  <!-- ============================================================
+       RELATIONSHIP LINES
+  ============================================================ -->
+
+  <!-- CART → ORDER  (1 Cart has many Orders via sessionId) -->
+  <!-- Cart right edge y=295 → Order left edge y=189 -->
+  <path d="M300,295 C340,295 340,189 370,189"
+        fill="none" stroke="#6366F1" stroke-width="1.8" stroke-dasharray="5,3"
+        marker-end="url(#crowBlue)" marker-start="url(#oneBlue)"/>
+  <text x="330" y="248" font-size="10" fill="#6366F1" transform="rotate(-70,330,248)">1 to Many</text>
+
+  <!-- ORDER → STOCK  (many Orders reference 1 Stock via pipe_type) -->
+  <path d="M640,213 C680,213 680,185 720,185"
+        fill="none" stroke="#10B981" stroke-width="1.8"/>
+  <circle cx="640" cy="213" r="3" fill="#10B981"/>
+  <text x="672" y="204" font-size="10" fill="#10B981">ref</text>
+
+  <!-- ORDER → APPROVED PRICE  (many Orders may reference 1 ApprovedPrice) -->
+  <path d="M640,357 C680,357 680,420 720,420"
+        fill="none" stroke="#EF4444" stroke-width="1.8" stroke-dasharray="5,3"/>
+  <circle cx="640" cy="357" r="3" fill="#EF4444"/>
+  <text x="650" y="393" font-size="10" fill="#EF4444">ref (optional)</text>
+
+  <!-- ML ENGINE ← → ORDER  (ML pricing feeds Order creation) -->
+  <path d="M990,210 C960,210 960,380 640,380"
+        fill="none" stroke="#8B5CF6" stroke-width="1.8" stroke-dasharray="4,4"/>
+  <text x="800" y="355" font-size="10" fill="#8B5CF6">price snapshot</text>
+
+  <!-- ML ENGINE → RF MODEL -->
+  <line x1="1082" y1="410" x2="1082" y2="450"
+        stroke="#8B5CF6" stroke-width="1.8" stroke-dasharray="4,4"
+        marker-end="url(#crow)"/>
+  <text x="1087" y="435" font-size="10" fill="#8B5CF6">calls</text>
+
+  <!-- ============================================================
+       LEGEND
+  ============================================================ -->
+  <rect x="40" y="560" width="540" height="130" rx="8" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="56" y="582" font-size="12" font-weight="700" fill="#1E293B">Legend</text>
+
+  <!-- PK -->
+  <rect x="60" y="592" width="22" height="14" rx="3" fill="#EEF2FF"/>
+  <text x="71" y="603" text-anchor="middle" font-size="9" font-weight="700" fill="#4338CA">PK</text>
+  <text x="88" y="603" font-size="11" fill="#475569">Primary Key</text>
+
+  <!-- FK -->
+  <rect x="60" y="612" width="22" height="14" rx="3" fill="#ECFDF5"/>
+  <text x="71" y="623" text-anchor="middle" font-size="9" font-weight="700" fill="#065F46">FK</text>
+  <text x="88" y="623" font-size="11" fill="#475569">Foreign Key (logical reference in MongoDB)</text>
+
+  <!-- UK -->
+  <rect x="60" y="632" width="22" height="14" rx="3" fill="#F5F3FF"/>
+  <text x="71" y="643" text-anchor="middle" font-size="9" font-weight="700" fill="#7C3AED">UK</text>
+  <text x="88" y="643" font-size="11" fill="#475569">Unique Key</text>
+
+  <!-- solid line -->
+  <line x1="60" y1="660" x2="90" y2="660" stroke="#10B981" stroke-width="2"/>
+  <text x="96" y="664" font-size="11" fill="#475569">Solid: hard reference (pipe_type key)</text>
+
+  <!-- dashed line -->
+  <line x1="200" y1="660" x2="230" y2="660" stroke="#6366F1" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="236" y="664" font-size="11" fill="#475569">Dashed: soft/logical link</text>
+
+  <!-- external dashed box -->
+  <rect x="370" y="592" width="36" height="18" rx="3" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="412" y="605" font-size="11" fill="#475569">External service (not in MongoDB)</text>
+
+  <!-- embedded -->
+  <text x="370" y="635" font-size="11" fill="#475569">↳  Embedded sub-document (no separate collection)</text>
+  <text x="370" y="655" font-size="11" fill="#475569">Crow-foot notation: one  ─┤╠─  many</text>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <text x="600" y="720" text-anchor="middle" font-size="11" fill="#94A3B8">
+    Database: MongoDB Atlas (NoSQL) · Backend: Node.js / Express · ML Service: Flask (Python) · Frontend: React
+  </text>
+  <text x="600" y="738" text-anchor="middle" font-size="10" fill="#CBD5E1">
+    Halchal Pipes &amp; Fittings Pvt. Ltd. — AI-Powered Dynamic Pricing System · Final Year Project 2026
+  </text>
+
+</svg>

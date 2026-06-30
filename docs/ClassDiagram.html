@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UML Class Diagram — Halchal AI Dynamic Pricing</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0F172A;
+    font-family: 'Segoe UI', 'Consolas', monospace, sans-serif;
+    padding: 30px 24px 40px;
+    color: #E2E8F0;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .page-header { text-align: center; margin-bottom: 28px; }
+  .page-header h1 { font-size: 24px; font-weight: 700; color: #F1F5F9; letter-spacing: -0.5px; }
+  .page-header p  { font-size: 12px; color: #64748B; margin-top: 4px; }
+
+  /* ── Grid ── */
+  .diagram-grid {
+    display: grid;
+    grid-template-columns: 252px 285px 235px 240px;
+    grid-template-rows: auto auto;
+    gap: 20px;
+    justify-content: center;
+    max-width: 1060px;
+    margin: 0 auto;
+  }
+
+  /* ── UML Class Box ── */
+  .uml-class {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Name compartment */
+  .cls-name {
+    padding: 10px 14px 10px;
+    text-align: center;
+    border-bottom: 2px solid rgba(0,0,0,0.25);
+  }
+  .cls-stereotype {
+    font-size: 10px;
+    font-style: italic;
+    opacity: 0.75;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .cls-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+  .cls-sub {
+    font-size: 9px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 2px;
+  }
+
+  /* Attributes compartment */
+  .cls-attrs {
+    background: #1E293B;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .cls-attrs .sect-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #475569;
+    padding: 5px 14px 2px;
+    font-weight: 600;
+  }
+
+  /* Methods compartment */
+  .cls-methods {
+    background: #172032;
+  }
+  .cls-methods .sect-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #475569;
+    padding: 5px 14px 2px;
+    font-weight: 600;
+  }
+
+  /* Field rows */
+  .field {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 14px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 11px;
+    gap: 6px;
+  }
+  .field:hover { background: rgba(255,255,255,0.025); }
+  .field-left  { display: flex; align-items: baseline; gap: 5px; flex-shrink: 0; }
+  .field-right { color: #475569; font-size: 10px; text-align: right; white-space: nowrap; }
+
+  .vis {
+    font-size: 12px;
+    font-weight: 700;
+    width: 10px;
+    flex-shrink: 0;
+  }
+  .vis-pub  { color: #34D399; }  /* + */
+  .vis-priv { color: #F87171; }  /* - */
+  .vis-prot { color: #FBBF24; }  /* # */
+
+  .fname { color: #CBD5E1; font-weight: 500; }
+  .fname.static-m { text-decoration: underline; }
+  .fname.abstract-m { font-style: italic; }
+
+  .badge-attr {
+    font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 3px;
+    text-transform: uppercase; flex-shrink: 0;
+  }
+  .pk  { background: #1E1B4B; color: #818CF8; border: 1px solid #3730A3; }
+  .fk  { background: #14532D; color: #4ADE80; border: 1px solid #166534; }
+  .uk  { background: #2E1065; color: #C084FC; border: 1px solid #6B21A8; }
+
+  .divider-row {
+    padding: 3px 14px;
+    font-size: 9px;
+    color: #334155;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-style: italic;
+  }
+
+  /* Colour themes */
+  .cart    .cls-name { background: linear-gradient(135deg, #4338CA, #6D28D9); }
+  .cart    { border: 1px solid #4338CA; }
+
+  .cartitem .cls-name { background: linear-gradient(135deg, #5B21B6, #7C3AED); }
+  .cartitem { border: 1px solid #5B21B6; }
+
+  .order   .cls-name { background: linear-gradient(135deg, #065F46, #059669); }
+  .order   { border: 1px solid #065F46; }
+
+  .stock   .cls-name { background: linear-gradient(135deg, #92400E, #D97706); }
+  .stock   { border: 1px solid #92400E; }
+
+  .aprice  .cls-name { background: linear-gradient(135deg, #991B1B, #EF4444); }
+  .aprice  { border: 1px solid #991B1B; }
+
+  .pricing .cls-name { background: linear-gradient(135deg, #0C4A6E, #0284C7); }
+  .pricing { border: 1px solid #0C4A6E; }
+
+  .mleng   .cls-name { background: linear-gradient(135deg, #701A75, #A21CAF); }
+  .mleng   { border: 1px solid #701A75; border-style: dashed; }
+
+  /* Grid placement */
+  .order    { grid-column: 2; grid-row: 1 / span 2; }
+  .stock    { grid-column: 3; grid-row: 1; }
+  .aprice   { grid-column: 3; grid-row: 2; }
+  .pricing  { grid-column: 4; grid-row: 1; }
+  .mleng    { grid-column: 4; grid-row: 2; }
+  .cart     { grid-column: 1; grid-row: 1; }
+  .cartitem { grid-column: 1; grid-row: 2; }
+
+  /* ── Relationships Section ── */
+  .rel-wrap {
+    max-width: 1060px; margin: 22px auto 0;
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .rel-wrap h2 { font-size: 13px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .rel-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .rel-table th { text-align: left; padding: 6px 12px; color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #334155; }
+  .rel-table td { padding: 8px 12px; color: #CBD5E1; border-bottom: 1px solid #1A2540; vertical-align: top; }
+  .rel-table tr:last-child td { border-bottom: none; }
+  .rel-type { font-weight: 700; white-space: nowrap; }
+  .assoc   { color: #34D399; }
+  .compose { color: #818CF8; }
+  .depend  { color: #FB923C; }
+  .use-rel { color: #38BDF8; }
+
+  /* ── Legend ── */
+  .legend {
+    max-width: 1060px; margin: 14px auto 0;
+    display: flex; gap: 22px; flex-wrap: wrap; align-items: center;
+    padding: 12px 18px;
+    background: #1E293B; border: 1px solid #334155; border-radius: 10px;
+    font-size: 11px; color: #94A3B8;
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .legend-dot  { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-note { color: #475569; font-size: 10px; font-style: italic; margin-left: auto; }
+
+  /* ── Footer ── */
+  .footer { text-align: center; margin-top: 20px; font-size: 10px; color: #334155; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>UML Class Diagram</h1>
+  <p>Halchal AI — Dynamic Pricing System &nbsp;·&nbsp; Node.js Backend · Flask ML Service · React Frontend · MongoDB Atlas</p>
+</div>
+
+<div class="diagram-grid">
+
+  <!-- ══════════════════════════════════════
+       1. CART
+  ══════════════════════════════════════ -->
+  <div class="uml-class cart">
+    <div class="cls-name">
+      <div class="cls-stereotype">«mongoose model»</div>
+      <div class="cls-title">Cart</div>
+      <div class="cls-sub">Collection: carts</div>
+    </div>
+
+    <div class="cls-attrs">
+      <div class="sect-label">Attributes</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr pk">PK</span><span class="fname">_id</span></div>
+        <div class="field-right">ObjectId</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr uk">UK</span><span class="fname">sessionId</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">items</span></div>
+        <div class="field-right">CartItem[ ]</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">createdAt</span></div>
+        <div class="field-right">Date</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">updatedAt</span></div>
+        <div class="field-right">Date</div>
+      </div>
+    </div>
+
+    <div class="cls-methods">
+      <div class="sect-label">Methods</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">sync(sessionId, items)</span></div>
+        <div class="field-right">Cart</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">load(sessionId)</span></div>
+        <div class="field-right">Cart</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">clear(sessionId)</span></div>
+        <div class="field-right">void</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       2. ORDER  (spans 2 rows)
+  ══════════════════════════════════════ -->
+  <div class="uml-class order">
+    <div class="cls-name">
+      <div class="cls-stereotype">«mongoose model»</div>
+      <div class="cls-title">Order</div>
+      <div class="cls-sub">Collection: orders</div>
+    </div>
+
+    <div class="cls-attrs">
+      <div class="sect-label">Attributes</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr pk">PK</span><span class="fname">_id</span></div>
+        <div class="field-right">ObjectId</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr fk">FK</span><span class="fname">session_id</span></div>
+        <div class="field-right">→ Cart.sessionId</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr fk">FK</span><span class="fname">pipe_type</span></div>
+        <div class="field-right">→ Stock.pipe_type</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">quantity</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">region</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">status</span></div>
+        <div class="field-right">String = "Pending"</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">requires_approval</span></div>
+        <div class="field-right">Boolean</div>
+      </div>
+      <div class="divider-row">// Pricing Snapshot</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">approved_price</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">final_price</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">discount_percent</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">total_ex_gst</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">total_gst</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">total_with_gst</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">gst_rate</span></div>
+        <div class="field-right">Number = 12</div>
+      </div>
+      <div class="divider-row">// ML Context Snapshot</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">season</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">zone</span></div>
+        <div class="field-right">String (Z1–Z5)</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">predicted_demand</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">created_at</span></div>
+        <div class="field-right">Date</div>
+      </div>
+    </div>
+
+    <div class="cls-methods">
+      <div class="sect-label">Methods</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">create(orderData)</span></div>
+        <div class="field-right">Order</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">getAll()</span></div>
+        <div class="field-right">Order[ ]</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">updateStatus(id, status)</span></div>
+        <div class="field-right">Order</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">aggregateSales(days)</span></div>
+        <div class="field-right">Number</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       3. STOCK
+  ══════════════════════════════════════ -->
+  <div class="uml-class stock">
+    <div class="cls-name">
+      <div class="cls-stereotype">«mongoose model»</div>
+      <div class="cls-title">Stock</div>
+      <div class="cls-sub">Collection: stocks</div>
+    </div>
+
+    <div class="cls-attrs">
+      <div class="sect-label">Attributes</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr pk">PK</span><span class="fname">_id</span></div>
+        <div class="field-right">ObjectId</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr uk">UK</span><span class="fname">pipe_type</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">quantity</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">updated_at</span></div>
+        <div class="field-right">Date</div>
+      </div>
+    </div>
+
+    <div class="cls-methods">
+      <div class="sect-label">Methods</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">getAll()</span></div>
+        <div class="field-right">Stock[ ]</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">update(pipeType, qty)</span></div>
+        <div class="field-right">Stock</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">decrement(pipeType, qty)</span></div>
+        <div class="field-right">Stock</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname static-m">seed()</span></div>
+        <div class="field-right">void</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       4. PRICING ENGINE
+  ══════════════════════════════════════ -->
+  <div class="uml-class pricing">
+    <div class="cls-name">
+      <div class="cls-stereotype">«utility class»</div>
+      <div class="cls-title">PricingEngine</div>
+      <div class="cls-sub">pricingEngine.js</div>
+    </div>
+
+    <div class="cls-attrs">
+      <div class="sect-label">Attributes</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname static-m">DISCOUNT_TIERS</span></div>
+        <div class="field-right">Map {static}</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname static-m">GST_RATE</span></div>
+        <div class="field-right">Number = 12 {static}</div>
+      </div>
+    </div>
+
+    <div class="cls-methods">
+      <div class="sect-label">Methods</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname static-m">calculateFinalOrderPrice</span></div>
+        <div class="field-right">PricingResult</div>
+      </div>
+      <div class="divider-row">// Returns: approvedPrice, finalPrice,</div>
+      <div class="divider-row">// discountPercent, totalExGST,</div>
+      <div class="divider-row">// totalGST, totalWithGST</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       5. CART ITEM  (embedded, row 2)
+  ══════════════════════════════════════ -->
+  <div class="uml-class cartitem">
+    <div class="cls-name">
+      <div class="cls-stereotype">«embedded document»</div>
+      <div class="cls-title">CartItem</div>
+      <div class="cls-sub">Embedded in Cart.items[ ]</div>
+    </div>
+
+    <div class="cls-attrs">
+      <div class="sect-label">Attributes</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">id</span></div>
+        <div class="field-right">String (name__state)</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">name</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">state</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">quantity</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">approvedPrice</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">finalPrice</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">totalWithGST</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">gstRate</span></div>
+        <div class="field-right">Number = 12</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">season / zone</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">predicted_demand</span></div>
+        <div class="field-right">Number</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">addedAt</span></div>
+        <div class="field-right">Number (epoch ms)</div>
+      </div>
+    </div>
+
+    <div class="cls-methods">
+      <div class="sect-label">Methods</div>
+      <div class="divider-row">// No methods — embedded sub-document;</div>
+      <div class="divider-row">// managed via CartContext.js</div>
+      <div style="padding: 6px 0;"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       6. APPROVED PRICE  (row 2, col 3)
+  ══════════════════════════════════════ -->
+  <div class="uml-class aprice">
+    <div class="cls-name">
+      <div class="cls-stereotype">«mongoose model»</div>
+      <div class="cls-title">ApprovedPrice</div>
+      <div class="cls-sub">Collection: approvedprices</div>
+    </div>
+
+    <div class="cls-attrs">
+      <div class="sect-label">Attributes</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="badge-attr pk">PK</span><span class="fname">_id</span></div>
+        <div class="field-right">ObjectId</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">pipe_type</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">region</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">price</span></div>
+        <div class="field-right">Number (₹/coil)</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">approved_at</span></div>
+        <div class="field-right">Date</div>
+      </div>
+    </div>
+
+    <div class="cls-methods">
+      <div class="sect-label">Methods</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">approve(pipeType, region, price)</span></div>
+        <div class="field-right">ApprovedPrice</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">getAll()</span></div>
+        <div class="field-right">ApprovedPrice[ ]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       7. ML PRICING ENGINE  (row 2, col 4)
+  ══════════════════════════════════════ -->
+  <div class="uml-class mleng">
+    <div class="cls-name">
+      <div class="cls-stereotype">«external service»</div>
+      <div class="cls-title">MLPricingEngine</div>
+      <div class="cls-sub">Flask · ml_api.py · Port 5001</div>
+    </div>
+
+    <div class="cls-attrs">
+      <div class="sect-label">Attributes</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname static-m">BASE_PRICES</span></div>
+        <div class="field-right">Dict {static}</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname static-m">COMPETITOR_PRICES</span></div>
+        <div class="field-right">Dict {static}</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname static-m">ZONE_META</span></div>
+        <div class="field-right">Dict {static}</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname static-m">STATE_META</span></div>
+        <div class="field-right">Dict {static}</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">rfModel</span></div>
+        <div class="field-right">RandomForest (.pkl)</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">encoders</span></div>
+        <div class="field-right">LabelEncoders (.pkl)</div>
+      </div>
+    </div>
+
+    <div class="cls-methods">
+      <div class="sect-label">Methods</div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-pub">+</span><span class="fname">calculatePrice(…)</span></div>
+        <div class="field-right">PriceResult</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">getSeason(month)</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">getBaseKey(pipeType)</span></div>
+        <div class="field-right">String</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">applyDemandFactor(…)</span></div>
+        <div class="field-right">Float</div>
+      </div>
+      <div class="field">
+        <div class="field-left"><span class="vis vis-priv">-</span><span class="fname">applyAdoptionFactor(…)</span></div>
+        <div class="field-right">Float</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /diagram-grid -->
+
+<!-- ══════════════════════════════════════
+     RELATIONSHIPS TABLE
+══════════════════════════════════════ -->
+<div class="rel-wrap">
+  <h2>Class Relationships</h2>
+  <table class="rel-table">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>Relationship</th>
+        <th>To</th>
+        <th>Multiplicity</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cart</td>
+        <td><span class="rel-type compose">◆ Composition</span></td>
+        <td>CartItem</td>
+        <td>1 &nbsp;—&nbsp; 0..*</td>
+        <td>CartItem is an embedded sub-document inside Cart; has no independent lifecycle</td>
+      </tr>
+      <tr>
+        <td>Cart</td>
+        <td><span class="rel-type assoc">——▷ Association</span></td>
+        <td>Order</td>
+        <td>1 &nbsp;—&nbsp; 0..*</td>
+        <td>One Cart session (sessionId) can produce multiple Orders; Cart.sessionId → Order.session_id</td>
+      </tr>
+      <tr>
+        <td>Order</td>
+        <td><span class="rel-type assoc">——▷ Association</span></td>
+        <td>Stock</td>
+        <td>* &nbsp;—&nbsp; 1</td>
+        <td>Order references Stock by pipe_type; stock.quantity decremented atomically on order creation</td>
+      </tr>
+      <tr>
+        <td>Order</td>
+        <td><span class="rel-type depend">- - ▷ Dependency</span></td>
+        <td>ApprovedPrice</td>
+        <td>* &nbsp;—&nbsp; 0..1</td>
+        <td>Order captures approved_price snapshot; ApprovedPrice stores admin override per pipe_type + region</td>
+      </tr>
+      <tr>
+        <td>PricingEngine</td>
+        <td><span class="rel-type depend">- - ▷ Dependency</span></td>
+        <td>Order</td>
+        <td>1 &nbsp;—&nbsp; *</td>
+        <td>PricingEngine.calculateFinalOrderPrice() is called before creating each Order</td>
+      </tr>
+      <tr>
+        <td>MLPricingEngine</td>
+        <td><span class="rel-type use-rel">- - ▷ Usage</span></td>
+        <td>PricingEngine</td>
+        <td>1 &nbsp;—&nbsp; 1</td>
+        <td>ML final_price feeds into PricingEngine as the approvedPrice input for discount + GST calculation</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><span style="color:#34D399;font-weight:700;font-size:14px">+</span>&nbsp;Public</div>
+  <div class="legend-item"><span style="color:#F87171;font-weight:700;font-size:14px">-</span>&nbsp;Private</div>
+  <div class="legend-item"><span style="color:#FBBF24;font-weight:700;font-size:14px">#</span>&nbsp;Protected</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1E1B4B;border:1px solid #3730A3"></div><span style="color:#818CF8">PK</span>&nbsp;Primary Key</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#14532D;border:1px solid #166534"></div><span style="color:#4ADE80">FK</span>&nbsp;Foreign Key</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2E1065;border:1px solid #6B21A8"></div><span style="color:#C084FC">UK</span>&nbsp;Unique Key</div>
+  <div class="legend-item"><span style="text-decoration:underline;color:#CBD5E1">underline</span>&nbsp;= static member</div>
+  <div class="legend-note">Dashed border = external service not stored in MongoDB</div>
+</div>
+
+<div class="footer">
+  Halchal Pipes &amp; Fittings Pvt. Ltd. — AI-Powered Dynamic Pricing System &nbsp;·&nbsp; Final Year Project 2026
+</div>
+
+</body>
+</html>

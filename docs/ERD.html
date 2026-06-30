@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERD — Halchal AI Dynamic Pricing</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0F172A;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 32px 24px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  h1 {
+    color: #F1F5F9; font-size: 26px; font-weight: 700; margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+  p.sub {
+    color: #64748B; font-size: 13px; margin-bottom: 28px;
+  }
+  .erd-grid {
+    display: grid;
+    grid-template-columns: 260px 270px 230px 190px;
+    grid-template-rows: auto auto;
+    gap: 20px;
+    max-width: 1060px;
+    width: 100%;
+  }
+  .entity {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    background: #1E293B;
+  }
+  .entity-header {
+    padding: 12px 16px;
+    display: flex; flex-direction: column;
+  }
+  .entity-name {
+    font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.3px;
+  }
+  .entity-sub {
+    font-size: 10px; opacity: 0.7; margin-top: 2px; color: #fff;
+  }
+  .field-list { list-style: none; }
+  .field-list li {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 12px;
+  }
+  .field-list li:hover { background: rgba(255,255,255,0.03); }
+  .field-name { color: #E2E8F0; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .field-type { color: #64748B; font-size: 11px; }
+  .badge {
+    font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .pk  { background: #312E81; color: #A5B4FC; }
+  .fk  { background: #14532D; color: #86EFAC; }
+  .uk  { background: #4C1D95; color: #DDD6FE; }
+  .sep { color: #475569 !important; font-size: 10px !important; font-style: italic; }
+  .sep .field-name { color: #475569; }
+
+  /* Colour themes per entity */
+  .cart   .entity-header { background: linear-gradient(135deg, #4F46E5, #7C3AED); }
+  .order  .entity-header { background: linear-gradient(135deg, #059669, #10B981); }
+  .stock  .entity-header { background: linear-gradient(135deg, #D97706, #F59E0B); }
+  .aprice .entity-header { background: linear-gradient(135deg, #DC2626, #EF4444); }
+  .ml     .entity-header { background: linear-gradient(135deg, #7C3AED, #8B5CF6); }
+  .rfm    .entity-header { background: linear-gradient(135deg, #7C3AED, #A78BFA); }
+
+  .cart   { border: 1px solid #4F46E5; }
+  .order  { border: 1px solid #059669; }
+  .stock  { border: 1px solid #D97706; }
+  .aprice { border: 1px solid #DC2626; }
+  .ml     { border: 1px solid #7C3AED; border-style: dashed; }
+  .rfm    { border: 1px solid #7C3AED; border-style: dashed; }
+
+  /* spans */
+  .order  { grid-row: 1 / span 2; }
+  .ml     { grid-row: 1; }
+  .rfm    { grid-row: 2; }
+
+  /* Relationships section */
+  .rel-section {
+    max-width: 1060px; width: 100%; margin-top: 24px;
+    background: #1E293B; border-radius: 12px;
+    border: 1px solid #334155;
+    padding: 20px 24px;
+  }
+  .rel-section h2 { color: #F1F5F9; font-size: 14px; margin-bottom: 14px; }
+  .rel-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .rel-table th {
+    text-align: left; padding: 6px 12px;
+    color: #64748B; font-weight: 600; text-transform: uppercase; font-size: 10px;
+    border-bottom: 1px solid #334155;
+  }
+  .rel-table td { padding: 8px 12px; color: #CBD5E1; border-bottom: 1px solid #1E293B; }
+  .rel-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .card { color: #818CF8; font-weight: 600; }
+  .note { color: #64748B; font-size: 11px; }
+
+  .legend {
+    max-width: 1060px; width: 100%; margin-top: 16px;
+    display: flex; gap: 20px; flex-wrap: wrap;
+    padding: 14px 20px;
+    background: #1E293B; border-radius: 10px; border: 1px solid #334155;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94A3B8; }
+  .legend-item .dot { width: 10px; height: 10px; border-radius: 2px; }
+  .ext-note { color: #94A3B8; font-size: 11px; font-style: italic; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Entity Relationship Diagram</h1>
+<p class="sub">Halchal AI — Dynamic Pricing System &nbsp;·&nbsp; MongoDB Atlas · Node.js · Flask ML · React</p>
+
+<div class="erd-grid">
+
+  <!-- CART -->
+  <div class="entity cart">
+    <div class="entity-header">
+      <span class="entity-name">🛒 CART</span>
+      <span class="entity-sub">Collection: carts</span>
+    </div>
+    <ul class="field-list">
+      <li><span class="field-name"><span class="badge pk">PK</span>_id</span><span class="field-type">ObjectId</span></li>
+      <li><span class="field-name"><span class="badge uk">UK</span>sessionId</span><span class="field-type">String (UUID)</span></li>
+      <li><span class="field-name">items[ ]</span><span class="field-type">Embedded Array</span></li>
+      <li class="sep"><span class="field-name">↳ id</span><span class="field-type">String (name__state)</span></li>
+      <li class="sep"><span class="field-name">↳ name</span><span class="field-type">String</span></li>
+      <li class="sep"><span class="field-name">↳ state</span><span class="field-type">String</span></li>
+      <li class="sep"><span class="field-name">↳ quantity</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ approvedPrice</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ finalPrice</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ discountPercent</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ totalExGST</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ totalGST</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ totalWithGST</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ gstRate</span><span class="field-type">Number (12)</span></li>
+      <li class="sep"><span class="field-name">↳ season / zone</span><span class="field-type">String</span></li>
+      <li class="sep"><span class="field-name">↳ predicted_demand</span><span class="field-type">Number</span></li>
+      <li class="sep"><span class="field-name">↳ addedAt</span><span class="field-type">Number (epoch ms)</span></li>
+      <li><span class="field-name">createdAt</span><span class="field-type">Date (auto)</span></li>
+      <li><span class="field-name">updatedAt</span><span class="field-type">Date (auto)</span></li>
+    </ul>
+  </div>
+
+  <!-- ORDER -->
+  <div class="entity order">
+    <div class="entity-header">
+      <span class="entity-name">📦 ORDER</span>
+      <span class="entity-sub">Collection: orders</span>
+    </div>
+    <ul class="field-list">
+      <li><span class="field-name"><span class="badge pk">PK</span>_id</span><span class="field-type">ObjectId</span></li>
+      <li><span class="field-name"><span class="badge fk">FK</span>session_id</span><span class="field-type">→ Cart.sessionId</span></li>
+      <li><span class="field-name"><span class="badge fk">FK</span>pipe_type</span><span class="field-type">→ Stock.pipe_type</span></li>
+      <li><span class="field-name">quantity</span><span class="field-type">Number</span></li>
+      <li><span class="field-name">region</span><span class="field-type">String</span></li>
+      <li><span class="field-name">status</span><span class="field-type">Pending / Shipped / …</span></li>
+      <li><span class="field-name">requires_approval</span><span class="field-type">Boolean</span></li>
+      <li class="sep"><span class="field-name">── Pricing Snapshot ──</span></li>
+      <li><span class="field-name">approved_price</span><span class="field-type">Number (per coil)</span></li>
+      <li><span class="field-name">final_price</span><span class="field-type">Number (after discount)</span></li>
+      <li><span class="field-name">discount_percent</span><span class="field-type">Number</span></li>
+      <li><span class="field-name">total_ex_gst</span><span class="field-type">Number</span></li>
+      <li><span class="field-name">total_gst</span><span class="field-type">Number</span></li>
+      <li><span class="field-name">total_with_gst</span><span class="field-type">Number</span></li>
+      <li><span class="field-name">gst_rate</span><span class="field-type">Number (12)</span></li>
+      <li class="sep"><span class="field-name">── ML Context ──</span></li>
+      <li><span class="field-name">season</span><span class="field-type">Kharif / Rabi / Summer</span></li>
+      <li><span class="field-name">zone</span><span class="field-type">String (Z1–Z5)</span></li>
+      <li><span class="field-name">predicted_demand</span><span class="field-type">Number</span></li>
+      <li><span class="field-name">created_at</span><span class="field-type">Date</span></li>
+    </ul>
+  </div>
+
+  <!-- STOCK -->
+  <div class="entity stock">
+    <div class="entity-header">
+      <span class="entity-name">📊 STOCK</span>
+      <span class="entity-sub">Collection: stocks</span>
+    </div>
+    <ul class="field-list">
+      <li><span class="field-name"><span class="badge pk">PK</span>_id</span><span class="field-type">ObjectId</span></li>
+      <li><span class="field-name"><span class="badge uk">UK</span>pipe_type</span><span class="field-type">String (unique)</span></li>
+      <li><span class="field-name">quantity</span><span class="field-type">Number (coils)</span></li>
+      <li><span class="field-name">updated_at</span><span class="field-type">Date</span></li>
+    </ul>
+  </div>
+
+  <!-- ML ENGINE -->
+  <div class="entity ml">
+    <div class="entity-header">
+      <span class="entity-name">🤖 ML PRICING ENGINE</span>
+      <span class="entity-sub">Flask API · Port 5001 (external service)</span>
+    </div>
+    <ul class="field-list">
+      <li class="sep"><span class="field-name">── Input ──</span></li>
+      <li><span class="field-name">pipeType</span><span class="field-type">String</span></li>
+      <li><span class="field-name">state / zone_id</span><span class="field-type">String</span></li>
+      <li><span class="field-name">month / year</span><span class="field-type">Int</span></li>
+      <li><span class="field-name">prev_month_sales</span><span class="field-type">Float</span></li>
+      <li><span class="field-name">govt_subsidy</span><span class="field-type">Int (0 / 1)</span></li>
+      <li class="sep"><span class="field-name">── Response ──</span></li>
+      <li><span class="field-name">final_price</span><span class="field-type">Number (₹)</span></li>
+      <li><span class="field-name">predicted_demand</span><span class="field-type">Number</span></li>
+      <li><span class="field-name">season</span><span class="field-type">String</span></li>
+      <li><span class="field-name">factors { }</span><span class="field-type">demand / market / …</span></li>
+    </ul>
+  </div>
+
+  <!-- APPROVED PRICE -->
+  <div class="entity aprice">
+    <div class="entity-header">
+      <span class="entity-name">✅ APPROVED PRICE</span>
+      <span class="entity-sub">Collection: approvedprices</span>
+    </div>
+    <ul class="field-list">
+      <li><span class="field-name"><span class="badge pk">PK</span>_id</span><span class="field-type">ObjectId</span></li>
+      <li><span class="field-name">pipe_type</span><span class="field-type">String</span></li>
+      <li><span class="field-name">region</span><span class="field-type">String</span></li>
+      <li><span class="field-name">price</span><span class="field-type">Number (₹ per coil)</span></li>
+      <li><span class="field-name">approved_at</span><span class="field-type">Date</span></li>
+      <li><span class="field-name">gst_rate</span><span class="field-type">Number (12%)</span></li>
+    </ul>
+  </div>
+
+  <!-- RF MODEL -->
+  <div class="entity rfm">
+    <div class="entity-header">
+      <span class="entity-name">🌲 RF DEMAND MODEL</span>
+      <span class="entity-sub">rf_demand_model.pkl · Random Forest</span>
+    </div>
+    <ul class="field-list">
+      <li class="sep"><span class="field-name">── Features (9) ──</span></li>
+      <li><span class="field-name">Pipe_Type_enc</span><span class="field-type">Int (label-enc)</span></li>
+      <li><span class="field-name">Zone_ID</span><span class="field-type">Int (1–5)</span></li>
+      <li><span class="field-name">Adoption_Index</span><span class="field-type">Float</span></li>
+      <li><span class="field-name">Season_enc</span><span class="field-type">Int</span></li>
+      <li><span class="field-name">Month / Year</span><span class="field-type">Int</span></li>
+      <li><span class="field-name">Base_Price</span><span class="field-type">Float (₹)</span></li>
+      <li><span class="field-name">Prev_Sales_Ratio</span><span class="field-type">Float</span></li>
+      <li><span class="field-name">Govt_Subsidy_Active</span><span class="field-type">Int (0/1)</span></li>
+      <li class="sep"><span class="field-name">── Output ──</span></li>
+      <li><span class="field-name">predicted_demand</span><span class="field-type">Float (coils/month)</span></li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- RELATIONSHIPS TABLE -->
+<div class="rel-section">
+  <h2>Relationships</h2>
+  <table class="rel-table">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>To</th>
+        <th>Cardinality</th>
+        <th>Key / Mechanism</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cart</td>
+        <td>Order</td>
+        <td class="card">1 : Many</td>
+        <td>Cart.sessionId → Order.session_id</td>
+        <td class="note">One shopping session can generate multiple orders (one per cart item)</td>
+      </tr>
+      <tr>
+        <td>Order</td>
+        <td>Stock</td>
+        <td class="card">Many : 1</td>
+        <td>Order.pipe_type → Stock.pipe_type</td>
+        <td class="note">Stock decremented atomically on order creation (if qty ≤ 100)</td>
+      </tr>
+      <tr>
+        <td>Order</td>
+        <td>ApprovedPrice</td>
+        <td class="card">Many : 1 (opt.)</td>
+        <td>Order.pipe_type + region → ApprovedPrice</td>
+        <td class="note">Snapshot stored in Order; ApprovedPrice is admin override store</td>
+      </tr>
+      <tr>
+        <td>Node Backend</td>
+        <td>ML Pricing Engine</td>
+        <td class="card">Many : 1</td>
+        <td>HTTP POST /calculate-price</td>
+        <td class="note">Called per /api/ai-price request; prev_month_sales aggregated from Order history</td>
+      </tr>
+      <tr>
+        <td>ML Pricing Engine</td>
+        <td>RF Demand Model</td>
+        <td class="card">1 : 1 (call)</td>
+        <td>rf_model.predict(features)</td>
+        <td class="note">Random Forest trained on 9 features; output drives dynamic price factors</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:#4F46E5"></div>PK — Primary Key</div>
+  <div class="legend-item"><div class="dot" style="background:#059669"></div>FK — Foreign Key (logical ref in MongoDB)</div>
+  <div class="legend-item"><div class="dot" style="background:#7C3AED"></div>UK — Unique Key / Index</div>
+  <div class="legend-item"><div class="dot" style="background:transparent;border:2px dashed #8B5CF6;width:14px;height:10px;border-radius:2px"></div>Dashed border = external service (not in MongoDB)</div>
+  <div style="width:100%"><p class="ext-note">Note: MongoDB uses embedded documents (CartItem inside Cart) instead of separate join tables. Relationships between collections are logical references by field value, not enforced foreign keys.</p></div>
+</div>
+
+</body>
+</html>

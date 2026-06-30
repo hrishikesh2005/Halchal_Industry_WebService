@@ -92,7 +92,7 @@ export default function PricingApprovals() {
     setApproved({});
     setOverrides({});
     setLoading(false);
-  }, [zone, activeZone.mult, getMock]);
+  }, [zone, getMock]);
 
   useEffect(() => { fetchPrices(); }, [fetchPrices]);
 
