@@ -251,7 +251,7 @@ app.post("/api/approve-price", async (req, res) => {
 });
 
 /* =========================
-   Get Approved Prices
+   Get Approved Prices (all)
 ========================= */
 app.get("/api/approved-prices", async (req, res) => {
   try {
@@ -260,6 +260,32 @@ app.get("/api/approved-prices", async (req, res) => {
   } catch (error) {
     console.error("Fetch Approved Error:", error);
     res.status(500).json({ error: "Failed to fetch approved prices" });
+  }
+});
+
+/* =========================
+   Check Approved Price — current month
+   Query: ?pipe_type=16mm+Inline&zone=Z1
+========================= */
+app.get("/api/approved-prices/current", async (req, res) => {
+  try {
+    const { pipe_type, zone } = req.query;
+    if (!pipe_type || !zone) return res.json({ approved: false });
+
+    const now           = new Date();
+    const startOfMonth  = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const record = await ApprovedPrice.findOne({
+      pipe_type,
+      region: zone,
+      approved_at: { $gte: startOfMonth },
+    }).sort({ approved_at: -1 });
+
+    if (record) res.json({ approved: true, price: record.price, approved_at: record.approved_at });
+    else        res.json({ approved: false });
+  } catch (err) {
+    console.error("Approved price check error:", err.message);
+    res.json({ approved: false });
   }
 });
 

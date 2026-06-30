@@ -106,7 +106,7 @@ export default function PricingApprovals() {
     try {
       await fetch(`${API_BASE}/api/approve-price`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pipe_type: pipe, zone, price }),
+        body: JSON.stringify({ pipe_type: pipe, region: zone, approved_price: price }),
       });
     } catch {}
     setApproved(a => ({ ...a, [pipe]: price }));

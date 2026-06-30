@@ -7,7 +7,7 @@ import Navbar from "../components/Navbar";
 import { useTheme } from "../context/ThemeContext";
 import API_BASE from "../config";
 
-/* ─── AI fallback data (used when backend takes > 10s) ─────── */
+/* ─── Pricing helpers ──────────────────────────────────────── */
 const FALLBACK_APPROVED = {
   "16mm Inline":  1240,
   "20mm Inline":  1590,
@@ -20,6 +20,15 @@ const FALLBACK_DEMAND = {
   "16mm Online":  392,
   "20mm Online":  286,
 };
+const BASE_PRICES  = { "16mm Inline": 1050, "20mm Inline": 1350, "16mm Online": 1200, "20mm Online": 1500 };
+const ZONE_LABELS  = { Z1: "Zone 1 – Maharashtra", Z2: "Zone 2 – West & Central", Z3: "Zone 3 – South India", Z4: "Zone 4 – North India", Z5: "Zone 5 – East & NE" };
+const STATE_TO_ZONE = {
+  Maharashtra: "Z1",
+  Gujarat: "Z2", Goa: "Z2", "Madhya Pradesh": "Z2", Chhattisgarh: "Z2",
+  Karnataka: "Z3", "Andhra Pradesh": "Z3", Telangana: "Z3", "Tamil Nadu": "Z3", Kerala: "Z3",
+  Rajasthan: "Z4", Haryana: "Z4", Punjab: "Z4", "Uttar Pradesh": "Z4", Delhi: "Z4",
+  Bihar: "Z5", "West Bengal": "Z5", Odisha: "Z5", Jharkhand: "Z5", Assam: "Z5",
+};
 function pipeCategory(name) {
   const n = (name || "").toLowerCase();
   if (n.includes("20mm") && n.includes("online")) return "20mm Online";
@@ -27,27 +36,33 @@ function pipeCategory(name) {
   if (n.includes("online")) return "16mm Online";
   return "16mm Inline";
 }
-function buildFallbackAiData(pipeName, qty, stateName) {
-  const cat      = pipeCategory(pipeName);
-  const quantity = Number(qty) || 1;
-  const approvedPrice = FALLBACK_APPROVED[cat];
-  const discountFactor = quantity >= 100 ? 0.80 : quantity >= 5 ? 0.90 : 1.00;
+function currentSeason() {
+  const m = new Date().getMonth() + 1;
+  if (m >= 6 && m <= 9)  return "Kharif";
+  if (m >= 10 || m <= 2) return "Rabi";
+  return "Summer";
+}
+function buildAiDataFromPrice(pipeName, qty, stateName, basePerBundle) {
+  const cat             = pipeCategory(pipeName);
+  const quantity        = Number(qty) || 1;
+  const discountFactor  = quantity >= 100 ? 0.80 : quantity >= 5 ? 0.90 : 1.00;
   const discountPercent = Number(((1 - discountFactor) * 100).toFixed(1));
-  const finalPrice     = Math.round((approvedPrice * discountFactor) / 10) * 10;
-  const totalExGST     = finalPrice * quantity;
-  const totalGST       = Math.round(totalExGST * 0.12 * 100) / 100;
-  const totalWithGST   = Math.round((totalExGST + totalGST) * 100) / 100;
+  const finalPrice      = Math.round((basePerBundle * discountFactor) / 10) * 10;
+  const totalExGST      = finalPrice * quantity;
+  const totalGST        = Math.round(totalExGST * 0.12 * 100) / 100;
+  const totalWithGST    = Math.round((totalExGST + totalGST) * 100) / 100;
+  const zoneId          = STATE_TO_ZONE[stateName] || "Z1";
   return {
-    approvedPrice, quantity, discountPercent, finalPrice,
+    approvedPrice: basePerBundle, quantity, discountPercent, finalPrice,
     gstRate: 12, totalExGST, totalGST, totalWithGST,
     predicted_demand: FALLBACK_DEMAND[cat],
-    season: "Kharif",
-    base_price: { "16mm Inline": 1050, "20mm Inline": 1350, "16mm Online": 1200, "20mm Online": 1500 }[cat],
-    ex_factory_price: approvedPrice,
-    factors: { zone: "Zone 1 – Maharashtra", adoption_index: 1.0, season_multiplier: 1.28, govt_subsidy: true },
+    season: currentSeason(),
+    base_price: BASE_PRICES[cat],
+    ex_factory_price: basePerBundle,
+    factors: { zone: ZONE_LABELS[zoneId] || ZONE_LABELS.Z1, adoption_index: 1.0, season_multiplier: 1.28, govt_subsidy: true },
     pipe_type: pipeName,
     state: stateName || "Maharashtra",
-    zone: "Z1",
+    zone: zoneId,
   };
 }
 
@@ -227,11 +242,32 @@ const ProductDetails = () => {
     );
   }, []);
 
-  /* Fetch AI price — 10s timeout then fall back to pre-set Maharashtra/Kharif values */
+  /* Fetch price — checks admin-approved first, then ML API with 10s fallback */
   const fetchPrice = useCallback(async () => {
     setLoading(true);
     setAiData(null);
 
+    const cat    = pipeCategory(decodedName);
+    const zoneId = STATE_TO_ZONE[state] || "Z1";
+
+    // 1. Check if admin approved a price for this pipe + zone this month
+    try {
+      const ctrl = new AbortController();
+      const tmr  = setTimeout(() => ctrl.abort(), 3000);
+      const approvedRes  = await fetch(
+        `${API_BASE}/api/approved-prices/current?pipe_type=${encodeURIComponent(cat)}&zone=${zoneId}`,
+        { signal: ctrl.signal }
+      );
+      clearTimeout(tmr);
+      const approvedData = await approvedRes.json();
+      if (approvedData.approved && approvedData.price) {
+        setAiData(buildAiDataFromPrice(decodedName, quantity, state, approvedData.price));
+        setLoading(false);
+        return;
+      }
+    } catch {}
+
+    // 2. ML API with 10s timeout → pre-set fallback
     const controller = new AbortController();
     let settled = false;
 
@@ -244,7 +280,7 @@ const ProductDetails = () => {
     };
 
     const timer = setTimeout(() => {
-      finish(buildFallbackAiData(decodedName, quantity, state));
+      finish(buildAiDataFromPrice(decodedName, quantity, state, FALLBACK_APPROVED[cat]));
       controller.abort();
     }, 10000);
 
@@ -256,9 +292,9 @@ const ProductDetails = () => {
         signal:  controller.signal,
       });
       const data = await res.json();
-      finish(res.ok && data.finalPrice ? data : buildFallbackAiData(decodedName, quantity, state));
+      finish(res.ok && data.finalPrice ? data : buildAiDataFromPrice(decodedName, quantity, state, FALLBACK_APPROVED[cat]));
     } catch {
-      finish(buildFallbackAiData(decodedName, quantity, state));
+      finish(buildAiDataFromPrice(decodedName, quantity, state, FALLBACK_APPROVED[cat]));
     }
   }, [decodedName, state, quantity]);
 
