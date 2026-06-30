@@ -349,7 +349,7 @@ const SolutionSection = ({ onShop }) => {
             { label: "Seasonal demand factor",  val: "1.12×", note: "Pre-Kharif surge", color: T.green },
             { label: "Zone logistics factor",    val: "0.97×", note: "Pune–Nashik belt",  color: T.amber },
             { label: "Market adoption factor",   val: "1.03×", note: "Vidarbha-adjacent", color: T.green },
-            { label: "Bulk discount (50 coils)", val: "−4%",   note: "50+ coil tier",     color: T.green },
+            { label: "Bulk discount (50 coils)", val: "−10%",  note: "5+ coil tier",      color: T.green },
           ].map(({ label, val, note, color }) => (
             <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 0", borderBottom: `1px solid ${T.border}`, fontFamily: T.font }}>
               <div>
@@ -429,7 +429,7 @@ const HowItWorks = () => {
           {[
             { step: "01", title: "Pick your state and crop", desc: "We auto-detect your location via GPS or let you choose manually. This sets your agri zone and logistics cost baseline." },
             { step: "02", title: "Enter your quantity",       desc: "How many coils you need — from a single coil to a 500+ project order. Volume discounts apply in real time." },
-            { step: "03", title: "See your full breakdown",   desc: "Ex-factory price, each factor's weight, any bulk discount, and the final GST-inclusive total. Everything visible before you order." },
+            { step: "03", title: "Add to cart and pay",        desc: "Review your AI price, apply bulk discount if eligible, and pay securely via Razorpay. GST invoice generated instantly." },
           ].map(({ step, title, desc }, i) => (
             <div key={step} className={`scroll-reveal sr-d${i + 1}`} style={{ position: "relative" }}>
               {i < 2 && <div className="step-connector" />}
@@ -544,21 +544,21 @@ const TestimonialsSection = () => {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
           {[
             {
-              quote: "Bought 120 coils for my onion crop. Got ₹9 cheaper per coil compared to my local dealer's quote. The state-wise pricing made sense — Nashik logistics are genuinely lower cost than what dealers charge me.",
-              name:  "Ramesh Patil",
-              role:  "Onion farmer · Nashik, Maharashtra",
+              quote: "Ordered 80 coils for our grape farm in Nashik. Delivery arrived within 5 days — well packed, no damage, and the pipe quality is excellent. Emitter spacing is consistent throughout. Will definitely reorder next season.",
+              name:  "Sandip Mhaske",
+              role:  "Grape farmer · Nashik, Maharashtra",
               stars: 5,
             },
             {
-              quote: "I need a lot of pipe for sugarcane. The bulk calculator showed me exactly which quantity tier saves the most. Ordered 160 coils and saved ₹4 per coil compared to my usual supplier's offer.",
-              name:  "Suresh Gaikwad",
-              role:  "Sugarcane farmer · Amravati, Maharashtra",
+              quote: "We needed 200 coils urgently before Kharif sowing. Halchal delivered on time to our farm in Solapur. The HDPE quality is noticeably better than what we were getting from local dealers — thicker wall, UV finish is good.",
+              name:  "Prakash Kamble",
+              role:  "Sugarcane farmer · Solapur, Maharashtra",
               stars: 5,
             },
             {
-              quote: "Cotton farming in Saurashtra needs careful input costing. The factor breakdown showed me the Gujarat logistics figure — I could verify it was reasonable. That transparency is what I needed before placing a big order.",
-              name:  "Vijay Solanki",
-              role:  "Cotton farmer · Rajkot, Gujarat",
+              quote: "Compared prices from three suppliers before ordering. Halchal gave the best rate — almost ₹150 cheaper per coil than the others. With 100 coils that's a big saving. Pricing is transparent, no hidden charges.",
+              name:  "Rajan Patel",
+              role:  "Cotton farmer · Surat, Gujarat",
               stars: 5,
             },
           ].map(({ quote, name, role, stars }) => (
@@ -600,18 +600,18 @@ const PricingSection = ({ navigate }) => {
     {
       label:    "Growing farm",
       qty:      "5–99 coils",
-      discount: "Up to 4% off",
+      discount: "Up to 10% off",
       note:     "Bulk tiers applied automatically",
-      items:    ["Everything in Standard", "1–4% bulk discount", "Priority dispatch", "Order tracking"],
+      items:    ["Everything in Standard", "10% bulk discount", "Priority dispatch", "Order tracking"],
       cta:      "See bulk pricing",
       featured: true,
     },
     {
       label:    "Commercial / Distributor",
       qty:      "100+ coils",
-      discount: "Up to 6% off",
+      discount: "Up to 20% off",
       note:     "Best rate + dedicated support",
-      items:    ["Everything in Bulk", "4–6% maximum discount", "Dedicated account manager", "Flexible delivery schedule"],
+      items:    ["Everything in Bulk", "20% maximum discount", "Dedicated account manager", "Flexible delivery schedule"],
       cta:      "Contact us",
       featured: false,
     },
@@ -679,7 +679,7 @@ const faqs = [
   { q: "Is there a minimum order quantity?", a: "No minimum. You can buy as few as 1 coil. Bulk discounts kick in automatically at 5, 10, 50, 100, and 500 coils — you'll see them applied in the calculator before checkout." },
   { q: "Which Indian states do you ship to?", a: "Currently we ship to 18 states across Maharashtra, Gujarat, Rajasthan, Karnataka, Andhra Pradesh, Telangana, Punjab, Haryana, and Madhya Pradesh, among others. We're expanding quarterly — check the product page for your state's availability." },
   { q: "How is GST handled on my invoice?", a: "12% GST applies under HSN code 3917 (plastic pipes and fittings). The calculator shows you the ex-GST price and adds GST as a separate line on checkout. Your tax invoice is downloadable immediately after the order is placed." },
-  { q: "Can I see pricing without creating an account?", a: "Yes. The full pricing engine — including all factor breakdowns and bulk discount tiers — runs without any registration. You only need to sign in when you add to cart or confirm an order." },
+  { q: "Can I see pricing without creating an account?", a: "Yes. The AI pricing engine — including bulk discount tiers — runs without any registration. You only need to sign in when you add to cart or confirm an order." },
   { q: "What pipe specifications do you stock?", a: "We stock 16mm and 20mm pipes in both inline and online emitter configurations. Standard coil lengths are 400m for 16mm and 200m for 20mm. All are HDPE-grade, UV-stabilised, BIS-certified, and rated for 5+ seasons under normal Indian field conditions." },
 ];
 
