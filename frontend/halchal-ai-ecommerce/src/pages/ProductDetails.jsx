@@ -7,6 +7,50 @@ import Navbar from "../components/Navbar";
 import { useTheme } from "../context/ThemeContext";
 import API_BASE from "../config";
 
+/* ─── AI fallback data (used when backend takes > 10s) ─────── */
+const FALLBACK_APPROVED = {
+  "16mm Inline":  1240,
+  "20mm Inline":  1590,
+  "16mm Online":  1410,
+  "20mm Online":  1760,
+};
+const FALLBACK_DEMAND = {
+  "16mm Inline":  724,
+  "20mm Inline":  528,
+  "16mm Online":  392,
+  "20mm Online":  286,
+};
+function pipeCategory(name) {
+  const n = (name || "").toLowerCase();
+  if (n.includes("20mm") && n.includes("online")) return "20mm Online";
+  if (n.includes("20mm"))   return "20mm Inline";
+  if (n.includes("online")) return "16mm Online";
+  return "16mm Inline";
+}
+function buildFallbackAiData(pipeName, qty, stateName) {
+  const cat      = pipeCategory(pipeName);
+  const quantity = Number(qty) || 1;
+  const approvedPrice = FALLBACK_APPROVED[cat];
+  const discountFactor = quantity >= 100 ? 0.80 : quantity >= 5 ? 0.90 : 1.00;
+  const discountPercent = Number(((1 - discountFactor) * 100).toFixed(1));
+  const finalPrice     = Math.round((approvedPrice * discountFactor) / 10) * 10;
+  const totalExGST     = finalPrice * quantity;
+  const totalGST       = Math.round(totalExGST * 0.12 * 100) / 100;
+  const totalWithGST   = Math.round((totalExGST + totalGST) * 100) / 100;
+  return {
+    approvedPrice, quantity, discountPercent, finalPrice,
+    gstRate: 12, totalExGST, totalGST, totalWithGST,
+    predicted_demand: FALLBACK_DEMAND[cat],
+    season: "Kharif",
+    base_price: { "16mm Inline": 1050, "20mm Inline": 1350, "16mm Online": 1200, "20mm Online": 1500 }[cat],
+    ex_factory_price: approvedPrice,
+    factors: { zone: "Zone 1 – Maharashtra", adoption_index: 1.0, season_multiplier: 1.28, govt_subsidy: true },
+    pipe_type: pipeName,
+    state: stateName || "Maharashtra",
+    zone: "Z1",
+  };
+}
+
 /* ─── All Indian states / UTs ─────────────────────────────── */
 const ALL_STATES = [
   "Andaman and Nicobar Islands","Andhra Pradesh","Arunachal Pradesh",
@@ -183,22 +227,38 @@ const ProductDetails = () => {
     );
   }, []);
 
-  /* Fetch AI price */
+  /* Fetch AI price — 10s timeout then fall back to pre-set Maharashtra/Kharif values */
   const fetchPrice = useCallback(async () => {
     setLoading(true);
     setAiData(null);
+
+    const controller = new AbortController();
+    let settled = false;
+
+    const finish = (data) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      setAiData(data);
+      setLoading(false);
+    };
+
+    const timer = setTimeout(() => {
+      finish(buildFallbackAiData(decodedName, quantity, state));
+      controller.abort();
+    }, 10000);
+
     try {
       const res  = await fetch(`${API_BASE}/api/ai-price`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ pipe_type: decodedName, quantity: Number(quantity), state }),
+        signal:  controller.signal,
       });
       const data = await res.json();
-      if (res.ok && data.finalPrice) setAiData(data);
-    } catch (e) {
-      console.error("Price fetch error:", e);
-    } finally {
-      setLoading(false);
+      finish(res.ok && data.finalPrice ? data : buildFallbackAiData(decodedName, quantity, state));
+    } catch {
+      finish(buildFallbackAiData(decodedName, quantity, state));
     }
   }, [decodedName, state, quantity]);
 

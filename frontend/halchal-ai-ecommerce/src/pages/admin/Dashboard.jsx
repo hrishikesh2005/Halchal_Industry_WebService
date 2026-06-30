@@ -100,6 +100,8 @@ export default function Dashboard() {
     setLoading(true);
     const month = new Date().getMonth() + 1;
     const year  = new Date().getFullYear();
+
+    // Base fallback — already realistic zone-adjusted values
     const results = {};
     for (const pipe of PIPES) {
       const base = BASE_AI[pipe];
@@ -109,7 +111,17 @@ export default function Dashboard() {
         trend:  base.trend,
       };
     }
+
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      setAiData({ ...results });
+      setLoading(false);
+    }, 10000);
+
     for (const pipe of PIPES) {
+      if (settled) break;
       try {
         const res  = await fetch(`${API_BASE}/api/ai-price`, {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -123,8 +135,13 @@ export default function Dashboard() {
         if (data.predicted_demand) results[pipe].demand = data.predicted_demand;
       } catch { /* use zoned mock */ }
     }
-    setAiData(results);
-    setLoading(false);
+
+    if (!settled) {
+      settled = true;
+      clearTimeout(timer);
+      setAiData(results);
+      setLoading(false);
+    }
   }, [zone, activeZone.mult]);
 
   useEffect(() => { fetchAI(); }, [fetchAI]);
