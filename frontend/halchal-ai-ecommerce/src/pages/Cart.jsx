@@ -134,11 +134,6 @@ const CartItemRow = ({ item, onRemove, onQtyChange }) => {
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", background: bg, color, padding: "3px 9px", borderRadius: 4 }}>
               {item.name.includes("Online") ? "Online" : "Inline"}
             </span>
-            {item.discountPercent > 0 && (
-              <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(0,214,143,0.10)", color: T.accent, padding: "2px 8px", borderRadius: 4, letterSpacing: "0.06em" }}>
-                −{item.discountPercent}% BULK
-              </span>
-            )}
           </div>
 
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: T.text1, marginBottom: 4 }}>
@@ -227,31 +222,6 @@ const CartItemRow = ({ item, onRemove, onQtyChange }) => {
         </div>
       </div>
 
-      {/* ML insight strip */}
-      {item.factors && (
-        <div style={{
-          marginTop: 14, display: "flex", gap: 16, flexWrap: "wrap",
-          padding: "10px 14px", background: T.bg3, borderRadius: 8
-        }}>
-          {[
-            ["Predicted Demand", `${Math.round(item.predicted_demand || 0)} units`],
-            ["Demand Factor",    `×${item.factors.demand_factor?.toFixed(3)}`],
-            ["Logistics",        `×${item.factors.logistics_factor?.toFixed(3)}`],
-            ["Market",           `×${item.factors.market_factor?.toFixed(3)}`],
-          ].map(([k, v]) => (
-            <div key={k} style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              <span style={{ fontSize: 11, color: T.text3 }}>{k}:</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: T.text2 }}>{v}</span>
-            </div>
-          ))}
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <span style={{ fontSize: 11, color: T.text3 }}>Total length:</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: T.text2 }}>
-              {((item.quantity || 0) * 300).toLocaleString("en-IN")} m
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

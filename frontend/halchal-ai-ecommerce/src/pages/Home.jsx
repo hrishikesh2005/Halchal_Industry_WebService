@@ -249,7 +249,7 @@ const Hero = ({ onShop }) => {
           {[
             ["1,400+",  "Active farmers"],
             ["18",      "States covered"],
-            ["₹8–14",   "Saved per coil vs. market"],
+            ["₹200–300", "Saved per coil vs. market"],
             ["4.8 / 5", "Customer rating"],
           ].map(([num, label], i, arr) => (
             <div key={label} style={{ textAlign: "center", minWidth: 130, padding: "0 28px", borderRight: i < arr.length - 1 ? `1px solid ${T.border}` : "none" }}>
