@@ -85,8 +85,8 @@ export default function AdminDashboard() {
           borderBottom: `1px solid ${T.border}`,
           display: "flex", alignItems: "center", gap: 11,
         }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, overflow: "hidden", flexShrink: 0, background: T.bg3 }}>
-            <img src={logo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <div style={{ width: 34, height: 34, borderRadius: 9, overflow: "hidden", flexShrink: 0, background: T.bg3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src={logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} />
           </div>
           {!collapsed && (
             <div style={{ overflow: "hidden", animation: "slideLeft 0.22s ease both" }}>

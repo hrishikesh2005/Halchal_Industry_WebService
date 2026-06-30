@@ -9,10 +9,7 @@ const T = {
 };
 
 const USERS = [
-  { name: "Admin",          email: "admin@halchal.in",    role: "Super Admin", status: "Active",   last: "Just now"   },
-  { name: "Devesh Surana",  email: "devesh@halchal.in",   role: "Manager",     status: "Active",   last: "2h ago"     },
-  { name: "Priya Sharma",   email: "priya@halchal.in",    role: "Analyst",     status: "Active",   last: "Yesterday"  },
-  { name: "Amit Kulkarni",  email: "amit@halchal.in",     role: "Sales",       status: "Inactive", last: "3 days ago" },
+  { name: "Admin", email: "admin@halchal.in", role: "Super Admin", status: "Active", last: "Just now" },
 ];
 
 const NOTIF_DEFAULTS = {
