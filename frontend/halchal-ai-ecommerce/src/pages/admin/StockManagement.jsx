@@ -34,12 +34,12 @@ const MOCK = {
   "Supreme 20mm Online": 200,
 };
 const META = {
-  "Premium 16mm Inline": { crop: "Banana · Grapes · Onion",       season: "Rabi / Kharif", reorder: 50 },
-  "Gold 16mm Inline":    { crop: "Pomegranate · Grapes",          season: "Rabi",          reorder: 40 },
-  "Supreme 16mm Online": { crop: "Tomato · Chilli · Pomegranate", season: "All seasons",   reorder: 50 },
-  "Premium 20mm Inline": { crop: "Sugarcane · Cotton",            season: "Kharif",        reorder: 40 },
-  "Shakti 20mm Inline":  { crop: "Sugarcane · Maize",             season: "Kharif",        reorder: 30 },
-  "Supreme 20mm Online": { crop: "Cotton · Maize",                season: "Kharif",        reorder: 30 },
+  "Premium 16mm Inline": { reorder: 50 },
+  "Gold 16mm Inline":    { reorder: 40 },
+  "Supreme 16mm Online": { reorder: 50 },
+  "Premium 20mm Inline": { reorder: 40 },
+  "Shakti 20mm Inline":  { reorder: 30 },
+  "Supreme 20mm Online": { reorder: 30 },
 };
 const HISTORY = [
   { date: "May 1", "Premium 16mm Inline": 210, "Gold 16mm Inline": 205, "Supreme 16mm Online": 208, "Premium 20mm Inline": 202, "Shakti 20mm Inline": 198, "Supreme 20mm Online": 197 },
@@ -168,9 +168,7 @@ export default function StockManagement() {
               {/* Header */}
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18 }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: T.t1, marginBottom: 4 }}>{pipe}</div>
-                  <div style={{ fontSize: 11, color: T.t3, marginBottom: 2 }}>{meta.crop}</div>
-                  <div style={{ fontSize: 11, color: T.t3 }}>Peak season: {meta.season}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: T.t1 }}>{pipe}</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: 32, fontWeight: 800, color: col, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{qty}</div>
