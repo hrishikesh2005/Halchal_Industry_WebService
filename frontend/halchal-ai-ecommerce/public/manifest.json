@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Halchal",
+  "name": "Halchal Industries – Drip Irrigation Pipes",
+  "description": "AI-powered drip irrigation pipe supplier. Buy 16mm and 20mm inline and online drip pipes online with dynamic pricing.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,8 +19,8 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/home",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#00E5A0",
+  "background_color": "#05070F"
 }

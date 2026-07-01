@@ -55,6 +55,12 @@ export default function AdminDashboard() {
   const location  = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
+  // Block direct URL access — must have logged in via /admin
+  if (!localStorage.getItem("halchal_admin_auth")) {
+    navigate("/admin", { replace: true });
+    return null;
+  }
+
   const isActive    = (p) => location.pathname.includes(p);
   const currentPage = NAV.find(n => isActive(n.path))?.label || "Dashboard";
 

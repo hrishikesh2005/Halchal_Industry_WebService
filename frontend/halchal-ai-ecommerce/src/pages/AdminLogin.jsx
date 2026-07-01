@@ -184,16 +184,6 @@ export default function AdminLogin() {
           </form>
         </div>
 
-        {/* Demo hint */}
-        <div style={{ marginTop: 16, background: "rgba(255,176,32,0.05)", border: "1px solid rgba(255,176,32,0.12)", borderRadius: 10, padding: "12px 18px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-          <span style={{ fontSize: 15, lineHeight: 1.4 }}>🔑</span>
-          <div style={{ fontSize: 12, color: T.text2, lineHeight: 1.5 }}>
-            <span style={{ color: T.copper, fontWeight: 600 }}>Demo credentials: </span>
-            Username <code style={{ background: T.bg3, padding: "1px 5px", borderRadius: 4 }}>admin</code>{" "}
-            · Password <code style={{ background: T.bg3, padding: "1px 5px", borderRadius: 4 }}>halchal@2024</code>
-          </div>
-        </div>
-
         <p style={{ textAlign: "center", fontSize: 11, color: T.text3, marginTop: 18 }}>
           <Link to="/home" style={{ color: T.text2, textDecoration: "none" }}>← Back to site</Link>
         </p>
