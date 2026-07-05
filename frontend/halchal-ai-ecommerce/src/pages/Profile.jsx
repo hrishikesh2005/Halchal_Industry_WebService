@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const T = {
   bg0: "#05070F", bg1: "#080D1C", bg2: "#0D1628", bg3: "#121F38",
@@ -12,11 +13,11 @@ const T = {
   error: "#FF6060",
 };
 
-const PROFILE_KEY = "halchal_profile_v1";
+const PROFILE_KEY_PREFIX = "halchal_profile_v1";
 
-const DEFAULT_PROFILE = {
-  fullName:     "Hrishikesh",
-  email:        "hrishikesh@gmail.com",
+const blankProfile = (currentUser) => ({
+  fullName:     currentUser?.name  || "",
+  email:        currentUser?.email || "",
   phone:        "",
   company:      "",
   gst:          "",
@@ -24,7 +25,7 @@ const DEFAULT_PROFILE = {
   state:        "Maharashtra",
   pincode:      "",
   address:      "",
-};
+});
 
 const STATES = [
   "Andhra Pradesh","Assam","Bihar","Chhattisgarh","Delhi","Goa","Gujarat",
@@ -175,32 +176,41 @@ const InfoRow = ({ icon, label, value, placeholder = "Not set" }) => (
 const Profile = () => {
   const navigate = useNavigate();
   const { items, grandTotalWithGST, itemCount } = useCart();
+  const { user: currentUser } = useAuth();
 
-  const [profile, setProfile]     = useState(DEFAULT_PROFILE);
-  const [draft,   setDraft]       = useState(DEFAULT_PROFILE);
+  const profileKey = `${PROFILE_KEY_PREFIX}_${currentUser?.id || "guest"}`;
+
+  const [profile, setProfile]     = useState(() => blankProfile(currentUser));
+  const [draft,   setDraft]       = useState(() => blankProfile(currentUser));
   const [editing, setEditing]     = useState(false);
   const [saving,  setSaving]      = useState(false);
   const [saved,   setSaved]       = useState(false);
   const [tab,     setTab]         = useState("overview");
   const [memberSince] = useState(() => {
-    const stored = localStorage.getItem("halchal_member_since");
+    const key = `halchal_member_since_${currentUser?.id || "guest"}`;
+    const stored = localStorage.getItem(key);
     if (stored) return stored;
     const date = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
-    localStorage.setItem("halchal_member_since", date);
+    localStorage.setItem(key, date);
     return date;
   });
 
-  // Load from localStorage on mount
+  // Load this user's saved profile details; default name/email come from their real account
   useEffect(() => {
+    const base = blankProfile(currentUser);
     try {
-      const raw = localStorage.getItem(PROFILE_KEY);
+      const raw = localStorage.getItem(profileKey);
       if (raw) {
-        const parsed = JSON.parse(raw);
+        const parsed = { ...base, ...JSON.parse(raw) };
         setProfile(parsed);
         setDraft(parsed);
+        return;
       }
     } catch { /* ignore */ }
-  }, []);
+    setProfile(base);
+    setDraft(base);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileKey]);
 
   const set = (field) => (e) => setDraft(d => ({ ...d, [field]: e.target.value }));
 
@@ -210,7 +220,7 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     await new Promise(r => setTimeout(r, 800));
-    localStorage.setItem(PROFILE_KEY, JSON.stringify(draft));
+    localStorage.setItem(profileKey, JSON.stringify(draft));
     setProfile({ ...draft });
     setSaving(false);
     setEditing(false);
