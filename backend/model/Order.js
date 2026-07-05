@@ -25,6 +25,18 @@ const orderSchema = new mongoose.Schema({
   payment_id:       String,   // Razorpay payment ID
   razorpay_order_id: String,  // Razorpay order ID
   created_at:       { type: Date, default: Date.now },
+
+  // Customer + delivery details captured at checkout
+  customer_name:    String,
+  customer_email:   String,
+  delivery_address: String,
+  phone:            String,
+  pincode:          String,
+
+  // Payment — Razorpay is in test mode, so real money never actually moves.
+  // payment_status stays "Pending" regardless of method until fulfilled manually.
+  payment_method:   { type: String, enum: ["Cash", "Online"], default: "Cash" },
+  payment_status:   { type: String, default: "Pending" },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

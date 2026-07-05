@@ -362,7 +362,15 @@ app.post("/api/orders", async (req, res) => {
       approved_price, final_price, discount_percent,
       total_ex_gst, total_gst, total_with_gst,
       season, zone, predicted_demand,
+      // Customer + delivery details captured at checkout
+      customer_name, customer_email,
+      delivery_address, phone, pincode,
+      payment_method,
     } = req.body;
+
+    if (!delivery_address || !phone || !pincode) {
+      return res.status(400).json({ error: "Delivery address, phone, and pincode are required." });
+    }
 
     let status = "Shipped";
     let requiresApproval = false;
@@ -405,6 +413,15 @@ app.post("/api/orders", async (req, res) => {
       zone,
       predicted_demand,
       session_id,
+      customer_name,
+      customer_email,
+      delivery_address,
+      phone,
+      pincode,
+      // Razorpay is in test mode — no real money moves either way, so every
+      // order starts Pending regardless of payment method until fulfilled manually.
+      payment_method: payment_method === "Online" ? "Online" : "Cash",
+      payment_status: "Pending",
     });
 
     await newOrder.save();
@@ -476,7 +493,14 @@ app.post("/api/payment/create-order", async (req, res) => {
 ========================= */
 app.post("/api/payment/verify", async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, items, session_id } = req.body;
+    const {
+      razorpay_order_id, razorpay_payment_id, razorpay_signature, items, session_id,
+      customer_name, customer_email, delivery_address, phone, pincode,
+    } = req.body;
+
+    if (!delivery_address || !phone || !pincode) {
+      return res.status(400).json({ error: "Delivery address, phone, and pincode are required." });
+    }
 
     // Verify HMAC signature
     const expected = crypto
@@ -525,6 +549,15 @@ app.post("/api/payment/verify", async (req, res) => {
         session_id,
         payment_id:       razorpay_payment_id,
         razorpay_order_id,
+        customer_name,
+        customer_email,
+        delivery_address,
+        phone,
+        pincode,
+        // Razorpay is in test mode — no real money moves, so stays Pending
+        // like the Cash flow until fulfilled manually.
+        payment_method:   "Online",
+        payment_status:   "Pending",
       }).save().catch(console.error);
     }
 

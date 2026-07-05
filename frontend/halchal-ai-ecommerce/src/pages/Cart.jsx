@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import API_BASE from "../config";
 
@@ -249,16 +250,32 @@ const OrderResult = ({ name, status, message }) => (
 /* ─── Cart page ────────────────────────────────────────────────────── */
 const Cart = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const {
     items, sessionId, removeFromCart, updateQuantity, clearCart,
     itemCount, grandTotalExGST, grandTotalGST, grandTotalWithGST,
   } = useCart();
 
-  const [placing,    setPlacing]    = useState(false);
-  const [results,    setResults]    = useState(null);   // array of { name, status, message }
-  const [ordersDone, setOrdersDone] = useState(false);
+  const [placing,       setPlacing]       = useState(false);
+  const [results,       setResults]       = useState(null);   // array of { name, status, message }
+  const [ordersDone,    setOrdersDone]    = useState(false);
+  const [showPayModal,  setShowPayModal]  = useState(false);
+  const [addressTouched, setAddressTouched] = useState(false);
+  const [delivery, setDelivery] = useState({ address: "", phone: "", pincode: "" });
 
-  const handlePlaceOrderDirect = async () => {
+  const addressValid =
+    delivery.address.trim().length > 0 &&
+    /^[0-9]{10}$/.test(delivery.phone.trim()) &&
+    /^[0-9]{6}$/.test(delivery.pincode.trim());
+
+  const handleOpenPayModal = () => {
+    setAddressTouched(true);
+    if (!addressValid) return;
+    setShowPayModal(true);
+  };
+
+  const handlePlaceOrderCash = async () => {
+    setShowPayModal(false);
     setPlacing(true);
     setResults(null);
     const all = [];
@@ -281,6 +298,12 @@ const Cart = () => {
             season:           item.season,
             zone:             item.zone,
             predicted_demand: item.predictedDemand,
+            customer_name:    currentUser?.name,
+            customer_email:   currentUser?.email,
+            delivery_address: delivery.address.trim(),
+            phone:            delivery.phone.trim(),
+            pincode:          delivery.pincode.trim(),
+            payment_method:   "Cash",
           }),
         });
         const data = await res.json();
@@ -294,7 +317,8 @@ const Cart = () => {
     setPlacing(false);
   };
 
-  const handlePlaceAllOrders = async () => {
+  const handlePlaceOrderOnline = async () => {
+    setShowPayModal(false);
     setPlacing(true);
     setResults(null);
 
@@ -311,7 +335,7 @@ const Cart = () => {
       const rzpOrder = await orderRes.json();
       if (!orderRes.ok) throw new Error(rzpOrder.error || "Failed to create payment order");
 
-      // Step 2: Open Razorpay checkout
+      // Step 2: Open Razorpay checkout (test mode — no real money moves)
       const options = {
         key:         process.env.REACT_APP_RAZORPAY_KEY_ID,
         amount:      rzpOrder.amount,
@@ -331,6 +355,11 @@ const Cart = () => {
                 razorpay_signature:  response.razorpay_signature,
                 session_id:          sessionId,
                 items,
+                customer_name:       currentUser?.name,
+                customer_email:      currentUser?.email,
+                delivery_address:    delivery.address.trim(),
+                phone:               delivery.phone.trim(),
+                pincode:             delivery.pincode.trim(),
               }),
             });
             const verifyData = await verifyRes.json();
@@ -346,7 +375,7 @@ const Cart = () => {
           }
           setPlacing(false);
         },
-        prefill: { name: "", email: "", contact: "" },
+        prefill: { name: currentUser?.name || "", email: currentUser?.email || "", contact: delivery.phone.trim() },
         theme:   { color: "#00E5A0" },
         modal: {
           ondismiss: () => setPlacing(false),
@@ -532,38 +561,53 @@ const Cart = () => {
                 </span>
               </div>
 
+              {/* Delivery details — required before placing an order */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.text3, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
+                  Delivery Details
+                </div>
+                <textarea
+                  className="qty-input"
+                  placeholder="Delivery address"
+                  value={delivery.address}
+                  onChange={e => setDelivery(d => ({ ...d, address: e.target.value }))}
+                  rows={2}
+                  style={{ width: "100%", height: "auto", textAlign: "left", padding: "10px 12px", resize: "vertical", marginBottom: 8, fontFamily: "'Lora', Georgia, serif" }}
+                />
+                <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+                  <input
+                    className="qty-input"
+                    placeholder="Phone (10 digits)"
+                    value={delivery.phone}
+                    onChange={e => setDelivery(d => ({ ...d, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                    style={{ flex: 1, width: "auto", textAlign: "left", padding: "10px 12px" }}
+                  />
+                  <input
+                    className="qty-input"
+                    placeholder="Pincode"
+                    value={delivery.pincode}
+                    onChange={e => setDelivery(d => ({ ...d, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                    style={{ width: 100, textAlign: "left", padding: "10px 12px" }}
+                  />
+                </div>
+                {addressTouched && !addressValid && (
+                  <p style={{ color: T.copper, fontSize: 12, marginTop: 4 }}>
+                    Please enter a delivery address, a 10-digit phone number, and a 6-digit pincode.
+                  </p>
+                )}
+              </div>
+
               {/* CTA */}
               <button
                 className="place-btn"
                 disabled={placing}
-                onClick={handlePlaceAllOrders}
+                onClick={handleOpenPayModal}
               >
                 {placing
                   ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                       <span className="spinner" /> Placing Orders...
                     </span>
                   : `Place ${itemCount > 1 ? "All " + itemCount + " Orders" : "Order"}`}
-              </button>
-
-              {/* Demo / test order path — bypasses payment */}
-              <button
-                disabled={placing}
-                onClick={handlePlaceOrderDirect}
-                style={{
-                  marginTop: 10, width: "100%", padding: "12px",
-                  background: "transparent",
-                  border: "1px solid rgba(0,229,160,0.30)",
-                  color: T.accent, borderRadius: 10,
-                  fontSize: 13, fontWeight: 600,
-                  fontFamily: "'Lora', Georgia, serif",
-                  cursor: placing ? "not-allowed" : "pointer",
-                  opacity: placing ? 0.5 : 1,
-                  transition: "border-color 0.2s, background 0.2s",
-                }}
-                onMouseEnter={e => { if (!placing) { e.currentTarget.style.background = "rgba(0,229,160,0.07)"; e.currentTarget.style.borderColor = "rgba(0,229,160,0.55)"; } }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(0,229,160,0.30)"; }}
-              >
-                Place Order (Demo)
               </button>
 
               {/* Trust signals */}
@@ -594,6 +638,59 @@ const Cart = () => {
 
           </div>
         </div>
+
+        {/* Payment method modal */}
+        {showPayModal && (
+          <div
+            style={{ position: "fixed", inset: 0, background: "rgba(2,4,10,0.65)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }}
+            onClick={() => setShowPayModal(false)}
+          >
+            <div
+              style={{ background: T.bg2, border: `1px solid ${T.borderMd}`, borderRadius: 20, padding: 32, width: "100%", maxWidth: 420 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: T.text1, marginBottom: 8 }}>
+                Choose Payment Method
+              </h3>
+              <p style={{ color: T.text3, fontSize: 13, marginBottom: 24, lineHeight: 1.5 }}>
+                Online payment is currently in test mode — no real money is charged. All orders are marked <strong style={{ color: T.text2 }}>Payment Pending</strong> until fulfilled.
+              </p>
+
+              <button
+                className="place-btn"
+                disabled={placing}
+                onClick={handlePlaceOrderCash}
+                style={{ marginBottom: 12 }}
+              >
+                💵 Cash on Delivery
+              </button>
+
+              <button
+                disabled={placing}
+                onClick={handlePlaceOrderOnline}
+                style={{
+                  width: "100%", padding: "16px",
+                  background: "transparent",
+                  border: `1px solid rgba(0,229,160,0.30)`,
+                  color: T.accent, borderRadius: 12,
+                  fontSize: 15, fontWeight: 700,
+                  fontFamily: "'Lora', Georgia, serif",
+                  cursor: placing ? "not-allowed" : "pointer",
+                  opacity: placing ? 0.5 : 1,
+                }}
+              >
+                💳 Pay Online (Razorpay — test mode)
+              </button>
+
+              <button
+                onClick={() => setShowPayModal(false)}
+                style={{ marginTop: 16, width: "100%", background: "transparent", border: "none", color: T.text3, padding: "8px", fontSize: 12, fontFamily: "'Lora', Georgia, serif", cursor: "pointer" }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

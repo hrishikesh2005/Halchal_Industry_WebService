@@ -13,16 +13,16 @@ const T = {
 };
 
 const MOCK_ORDERS = [
-  { _id:"1",  pipe_type:"16mm Inline", quantity:4,  region:"Pune",       status:"Approved",         customer:"Ramesh Agro Farms",       amount:4720,  date:"2026-05-07", requires_approval:false },
-  { _id:"2",  pipe_type:"20mm Inline", quantity:3,  region:"Nashik",     status:"Pending Approval", customer:"Grapes Valley Estate",     amount:4560,  date:"2026-05-07", requires_approval:true  },
-  { _id:"3",  pipe_type:"16mm Online", quantity:6,  region:"Kolhapur",   status:"Shipped",          customer:"Sugarcane Growers Co.",    amount:8100,  date:"2026-05-06", requires_approval:false },
-  { _id:"4",  pipe_type:"20mm Online", quantity:2,  region:"Solapur",    status:"Pending Approval", customer:"Pomegranate Farm Suresh",  amount:3360,  date:"2026-05-06", requires_approval:true  },
-  { _id:"5",  pipe_type:"16mm Inline", quantity:8,  region:"Aurangabad", status:"Approved",         customer:"Cotton Fields Ltd.",       amount:9440,  date:"2026-05-05", requires_approval:false },
-  { _id:"6",  pipe_type:"16mm Online", quantity:3,  region:"Nagpur",     status:"Shipped",          customer:"Nagpur Agri Corp",         amount:4050,  date:"2026-05-05", requires_approval:false },
-  { _id:"7",  pipe_type:"20mm Inline", quantity:4,  region:"Kolhapur",   status:"Pending Approval", customer:"Deccan Farms",             amount:6080,  date:"2026-05-04", requires_approval:true  },
-  { _id:"8",  pipe_type:"16mm Inline", quantity:5,  region:"Jalgaon",    status:"Approved",         customer:"Jalgaon Banana Growers",   amount:5900,  date:"2026-05-04", requires_approval:false },
-  { _id:"9",  pipe_type:"20mm Online", quantity:2,  region:"Amravati",   status:"Cancelled",        customer:"Amravati Cotton Co.",      amount:3360,  date:"2026-05-03", requires_approval:false },
-  { _id:"10", pipe_type:"16mm Inline", quantity:1,  region:"Pune",       status:"Shipped",          customer:"Pune Vegetable Nursery",   amount:1180,  date:"2026-05-03", requires_approval:false },
+  { _id:"1",  pipe_type:"16mm Inline", quantity:4,  region:"Pune",       status:"Approved",         customer:"Ramesh Agro Farms",       amount:4720,  date:"2026-05-07", requires_approval:false, final_price:1180, total_gst:506,  payment_method:"Cash",   payment_status:"Pending" },
+  { _id:"2",  pipe_type:"20mm Inline", quantity:3,  region:"Nashik",     status:"Pending Approval", customer:"Grapes Valley Estate",     amount:4560,  date:"2026-05-07", requires_approval:true,  final_price:1360, total_gst:489,  payment_method:"Online", payment_status:"Pending" },
+  { _id:"3",  pipe_type:"16mm Online", quantity:6,  region:"Kolhapur",   status:"Shipped",          customer:"Sugarcane Growers Co.",    amount:8100,  date:"2026-05-06", requires_approval:false, final_price:1205, total_gst:868,  payment_method:"Cash",   payment_status:"Pending" },
+  { _id:"4",  pipe_type:"20mm Online", quantity:2,  region:"Solapur",    status:"Pending Approval", customer:"Pomegranate Farm Suresh",  amount:3360,  date:"2026-05-06", requires_approval:true,  final_price:1500, total_gst:360,  payment_method:"Online", payment_status:"Pending" },
+  { _id:"5",  pipe_type:"16mm Inline", quantity:8,  region:"Aurangabad", status:"Approved",         customer:"Cotton Fields Ltd.",       amount:9440,  date:"2026-05-05", requires_approval:false, final_price:1053, total_gst:1011, payment_method:"Cash",   payment_status:"Pending" },
+  { _id:"6",  pipe_type:"16mm Online", quantity:3,  region:"Nagpur",     status:"Shipped",          customer:"Nagpur Agri Corp",         amount:4050,  date:"2026-05-05", requires_approval:false, final_price:1205, total_gst:434,  payment_method:"Online", payment_status:"Pending" },
+  { _id:"7",  pipe_type:"20mm Inline", quantity:4,  region:"Kolhapur",   status:"Pending Approval", customer:"Deccan Farms",             amount:6080,  date:"2026-05-04", requires_approval:true,  final_price:1357, total_gst:651,  payment_method:"Cash",   payment_status:"Pending" },
+  { _id:"8",  pipe_type:"16mm Inline", quantity:5,  region:"Jalgaon",    status:"Approved",         customer:"Jalgaon Banana Growers",   amount:5900,  date:"2026-05-04", requires_approval:false, final_price:1054, total_gst:632,  payment_method:"Cash",   payment_status:"Pending" },
+  { _id:"9",  pipe_type:"20mm Online", quantity:2,  region:"Amravati",   status:"Cancelled",        customer:"Amravati Cotton Co.",      amount:3360,  date:"2026-05-03", requires_approval:false, final_price:1500, total_gst:360,  payment_method:"Online", payment_status:"Pending" },
+  { _id:"10", pipe_type:"16mm Inline", quantity:1,  region:"Pune",       status:"Shipped",          customer:"Pune Vegetable Nursery",   amount:1180,  date:"2026-05-03", requires_approval:false, final_price:1054, total_gst:126,  payment_method:"Cash",   payment_status:"Pending" },
 ];
 
 const STATUS_CFG = {
@@ -32,12 +32,30 @@ const STATUS_CFG = {
   "Cancelled":        { bg: "rgba(255,85,119,0.09)", color: "#FF5577", dot: "#FF5577"  },
 };
 
+const PAYMENT_STATUS_CFG = {
+  "Pending": { bg: "rgba(245,166,35,0.09)", color: "#F5A623", dot: "#F5A623" },
+  "Paid":    { bg: "rgba(0,214,143,0.09)",  color: "#00D68F", dot: "#00D68F" },
+};
+
 const Badge = ({ status }) => {
   const s = STATUS_CFG[status] || { bg: T.bg3, color: T.t2, dot: T.t2 };
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, whiteSpace: "nowrap" }}>
       <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
       {status}
+    </span>
+  );
+};
+
+const PaymentBadge = ({ method, status }) => {
+  const s = PAYMENT_STATUS_CFG[status] || { bg: T.bg3, color: T.t2, dot: T.t2 };
+  return (
+    <span style={{ display: "inline-flex", flexDirection: "column", gap: 3 }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, whiteSpace: "nowrap", width: "fit-content" }}>
+        <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
+        {status || "Pending"}
+      </span>
+      <span style={{ fontSize: 10, color: T.t3 }}>{method === "Online" ? "💳 Online" : "💵 Cash"}</span>
     </span>
   );
 };
@@ -163,10 +181,10 @@ export default function Orders() {
           <div style={{ padding: 48, textAlign: "center", color: T.t3, fontSize: 13 }}>Loading orders…</div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1080 }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${T.border}` }}>
-                  {["#", "Customer", "Pipe Type", "Qty", "Region", "Amount", "Date", "Status", "Actions"].map(h => (
+                  {["#", "Customer", "Pipe Type", "Qty", "Region", "Price/Unit", "GST", "Amount", "Payment", "Date", "Status", "Actions"].map(h => (
                     <th key={h} style={{ textAlign: "left", fontSize: 10, color: T.t3, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", padding: "14px 16px" }}>{h}</th>
                   ))}
                 </tr>
@@ -182,11 +200,14 @@ export default function Orders() {
                       onClick={() => setExpanded(expanded === order._id ? null : order._id)}
                     >
                       <td style={{ padding: "13px 16px", fontSize: 11, color: T.t3 }}>{i + 1}</td>
-                      <td style={{ padding: "13px 16px", fontSize: 13, color: T.t1, fontWeight: 500 }}>{order.customer || "—"}</td>
+                      <td style={{ padding: "13px 16px", fontSize: 13, color: T.t1, fontWeight: 500 }}>{order.customer_name || order.customer || "—"}</td>
                       <td style={{ padding: "13px 16px", fontSize: 12, color: T.t2 }}>{order.pipe_type}</td>
                       <td style={{ padding: "13px 16px", fontSize: 12, color: T.t2 }}>{order.quantity} bundle{order.quantity !== 1 ? "s" : ""}</td>
                       <td style={{ padding: "13px 16px", fontSize: 12, color: T.t2 }}>{order.region}</td>
+                      <td style={{ padding: "13px 16px", fontSize: 12, color: T.t2, fontVariantNumeric: "tabular-nums" }}>₹{(order.final_price || 0).toLocaleString()}</td>
+                      <td style={{ padding: "13px 16px", fontSize: 12, color: T.t2, fontVariantNumeric: "tabular-nums" }}>₹{(order.total_gst || 0).toLocaleString()}</td>
                       <td style={{ padding: "13px 16px", fontSize: 13, color: T.green, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>₹{(order.total_with_gst || order.amount || 0).toLocaleString()}</td>
+                      <td style={{ padding: "13px 16px" }}><PaymentBadge method={order.payment_method} status={order.payment_status || "Pending"} /></td>
                       <td style={{ padding: "13px 16px", fontSize: 11, color: T.t3 }}>{order.date || (order.created_at ? new Date(order.created_at).toLocaleDateString("en-IN") : "—")}</td>
                       <td style={{ padding: "13px 16px" }}><Badge status={order.status} /></td>
                       <td style={{ padding: "13px 16px" }}>
@@ -209,14 +230,24 @@ export default function Orders() {
                     </tr>
                     {expanded === order._id && (
                       <tr key={`${order._id}-d`} style={{ background: T.bg2, borderBottom: `1px solid ${T.border}` }}>
-                        <td colSpan={9} style={{ padding: "14px 24px" }}>
-                          <div style={{ display: "flex", gap: 28, fontSize: 12, color: T.t2, flexWrap: "wrap" }}>
+                        <td colSpan={12} style={{ padding: "14px 24px" }}>
+                          <div style={{ display: "flex", gap: 28, fontSize: 12, color: T.t2, flexWrap: "wrap", marginBottom: 12 }}>
                             <div><span style={{ color: T.t3 }}>Order ID: </span><span style={{ color: T.t1, fontFamily: "monospace" }}>ORD-{String(order._id).padStart(5, "0")}</span></div>
                             <div><span style={{ color: T.t3 }}>Pipe: </span>{order.pipe_type}</div>
                             <div><span style={{ color: T.t3 }}>Qty: </span>{order.quantity} bundle{order.quantity !== 1 ? "s" : ""} ({(order.quantity * 300).toLocaleString()}m)</div>
                             <div><span style={{ color: T.t3 }}>Region: </span>{order.region}</div>
+                            <div><span style={{ color: T.t3 }}>Price/Unit: </span>₹{(order.final_price || 0).toLocaleString()}</div>
+                            <div><span style={{ color: T.t3 }}>GST: </span>₹{(order.total_gst || 0).toLocaleString()}</div>
                             <div><span style={{ color: T.t3 }}>Amount: </span><span style={{ color: T.green, fontWeight: 700 }}>₹{(order.total_with_gst || order.amount || 0).toLocaleString()}</span></div>
                             <div><span style={{ color: T.t3 }}>Status: </span>{order.status}</div>
+                            <div><span style={{ color: T.t3 }}>Payment: </span>{order.payment_method || "Cash"} · {order.payment_status || "Pending"}</div>
+                          </div>
+                          <div style={{ display: "flex", gap: 28, fontSize: 12, color: T.t2, flexWrap: "wrap" }}>
+                            <div><span style={{ color: T.t3 }}>Customer: </span>{order.customer_name || order.customer || "—"}</div>
+                            <div><span style={{ color: T.t3 }}>Email: </span>{order.customer_email || "—"}</div>
+                            <div><span style={{ color: T.t3 }}>Phone: </span>{order.phone || "—"}</div>
+                            <div><span style={{ color: T.t3 }}>Delivery Address: </span>{order.delivery_address || "—"}</div>
+                            <div><span style={{ color: T.t3 }}>Pincode: </span>{order.pincode || "—"}</div>
                           </div>
                         </td>
                       </tr>
@@ -225,7 +256,7 @@ export default function Orders() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={9} style={{ padding: 48, textAlign: "center", color: T.t3, fontSize: 13 }}>No orders match your filter.</td>
+                    <td colSpan={12} style={{ padding: 48, textAlign: "center", color: T.t3, fontSize: 13 }}>No orders match your filter.</td>
                   </tr>
                 )}
               </tbody>
