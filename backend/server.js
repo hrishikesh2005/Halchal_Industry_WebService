@@ -43,6 +43,7 @@ const ApprovedPrice = require("./model/ApprovedPrice");
 const Stock         = require("./model/Stock");
 const Order         = require("./model/Order");
 const Cart          = require("./model/Cart");
+const { pushOrderToCPI } = require("./services/cpiIntegration");
 const User          = require("./model/User");
 
 /* =========================
@@ -426,6 +427,8 @@ app.post("/api/orders", async (req, res) => {
 
     await newOrder.save();
 
+    pushOrderToCPI(newOrder);
+
     res.json({
       message: status === "Pending Approval"
         ? "Order received — pending admin approval."
@@ -530,7 +533,7 @@ app.post("/api/payment/verify", async (req, res) => {
         if (!stockItem) { status = "Pending Approval"; requiresApproval = true; }
       }
 
-      await new Order({
+      const savedOrder = await new Order({
         pipe_type:        item.name,
         quantity,
         region:           item.state,
@@ -559,6 +562,8 @@ app.post("/api/payment/verify", async (req, res) => {
         payment_method:   "Online",
         payment_status:   "Pending",
       }).save().catch(console.error);
+
+      if (savedOrder) pushOrderToCPI(savedOrder);
     }
 
     res.json({ success: true, payment_id: razorpay_payment_id });
